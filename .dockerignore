@@ -12,4 +12,6 @@ easy-rsa
 *.db
 *.db-*
 node_modules
+**/node_modules
+**/dist
 tests

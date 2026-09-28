@@ -27,6 +27,8 @@ func Init(configDir string) {
 	web.Router("/easyrsa/config", &controllers.EasyRSAConfigController{ConfigDir: configDir})
 	web.Router("/dangerzone", &controllers.DangerController{})
 	web.Router("/access", &controllers.AccessController{}, "get:Get;post:Post")
+	web.Router("/app", &controllers.ModernAppController{}, "get:Get")
+	web.Router("/api/v1/access", &controllers.AccessSnapshotController{}, "get:Get")
 
 	web.Include(&controllers.CertificatesController{ConfigDir: configDir})
 	web.Include(&controllers.DangerController{})

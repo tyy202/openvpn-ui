@@ -1,4 +1,12 @@
-# Build the checked-out source, including the bilingual UI. No release tarball required.
+# Build the modern management console. Node.js is only used at build time.
+FROM node:24-alpine AS frontend
+WORKDIR /src/web
+COPY web/package.json web/package-lock.json ./
+RUN npm ci
+COPY web/ ./
+RUN npm run build
+
+# Build the checked-out Go service. No release tarball required.
 FROM golang:1.26.5-alpine3.23 AS builder
 RUN apk add --no-cache build-base
 WORKDIR /src
@@ -16,6 +24,7 @@ WORKDIR /opt/openvpn-ui
 COPY --from=builder /out/openvpn-ui ./openvpn-ui
 COPY views ./views
 COPY static ./static
+COPY --from=frontend /src/web/dist ./static/modern
 COPY swagger ./swagger
 COPY conf ./conf
 COPY build/assets/app.conf ./conf/app.conf

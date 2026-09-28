@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -64,7 +65,18 @@ func (c *AccessController) Get() {
 
 func (c *AccessController) Post() {
 	flash := web.NewFlash()
-	if err := c.perform(c.GetString("action")); err != nil {
+	err := c.perform(c.GetString("action"))
+	if strings.Contains(c.Ctx.Input.Header("Accept"), "application/json") {
+		if err != nil {
+			c.Ctx.Output.SetStatus(http.StatusBadRequest)
+			c.Data["json"] = map[string]string{"error": err.Error()}
+		} else {
+			c.Data["json"] = map[string]bool{"ok": true}
+		}
+		_ = c.ServeJSON()
+		return
+	}
+	if err != nil {
 		flash.Error("%s", err.Error())
 	} else {
 		flash.Success("Access policy has been updated")
@@ -137,8 +149,23 @@ func (c *AccessController) perform(action string) error {
 			return fmt.Errorf("group name is required")
 		}
 		row := models.VPNGroup{Name: name, Description: strings.TrimSpace(c.GetString("Description")), Enabled: true}
-		_, err := o.Insert(&row)
-		return err
+		if _, err := o.Insert(&row); err != nil {
+			return err
+		}
+		for _, value := range c.GetStrings("NetworkIDs") {
+			networkID, err := parseID(value)
+			if err != nil {
+				_, _ = o.Delete(&row)
+				return err
+			}
+			link := models.GroupNetwork{Group: &row, Network: &models.NetworkResource{Id: networkID}}
+			if _, err = o.Insert(&link); err != nil {
+				_, _ = o.QueryTable(new(models.GroupNetwork)).Filter("Group__Id", row.Id).Delete()
+				_, _ = o.Delete(&row)
+				return err
+			}
+		}
+		return lib.ReconcileAccessPolicy()
 	case "update-group":
 		id, err := parseID(c.GetString("Id"))
 		if err != nil {
