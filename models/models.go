@@ -11,6 +11,7 @@ import (
 	clientconfig "github.com/d3vilh/openvpn-server-config/client/client-config"
 	easyrsaconfig "github.com/d3vilh/openvpn-server-config/easyrsa/config"
 	"github.com/d3vilh/openvpn-server-config/server/config"
+	"github.com/d3vilh/openvpn-ui/internal/deployconfig"
 	"gopkg.in/hlandau/passlib.v1"
 )
 
@@ -110,7 +111,7 @@ func CreateDefaultSettings() (*Settings, error) {
 	}
 }
 
-func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string, network string) {
+func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string, network string, deployment deployconfig.Config) {
 	c := OVConfig{
 		Profile: "default",
 		Config: config.Config{
@@ -154,6 +155,14 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 			CustomOptThree:           "# Custom Option Three\n# push \"route 0.0.0.0 255.255.255.255 net_gateway\"\n# push block-outside-dns",
 		},
 	}
+	if deployment.Host != "" {
+		c.Server = deployment.Server
+		c.PushRoute = deployment.PushRoute
+		c.Route = ""
+		c.RedirectGW = ""
+		c.DNSServer1 = ""
+		c.DNSServer2 = ""
+	}
 	o := orm.NewOrm()
 	if created, _, err := o.ReadOrCreate(&c, "Profile"); err == nil {
 		if created {
@@ -172,7 +181,7 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 	}
 }
 
-func CreateDefaultOVClientConfig(configDir string, ovConfigPath string, address string, network string) {
+func CreateDefaultOVClientConfig(configDir string, ovConfigPath string, address string, network string, deployment deployconfig.Config) {
 	c := OVClientConfig{
 		Profile: "default",
 		Config: clientconfig.Config{
@@ -200,6 +209,11 @@ func CreateDefaultOVClientConfig(configDir string, ovConfigPath string, address 
 			CustomConfTwo:     "#Custom Option Two",
 			CustomConfThree:   "#Custom Option Three",
 		},
+	}
+	if deployment.Host != "" {
+		c.ServerAddress = deployment.Host
+		c.OpenVpnServerPort = deployment.Port
+		c.RedirectGateway = ""
 	}
 	o := orm.NewOrm()
 	if created, _, err := o.ReadOrCreate(&c, "Profile"); err == nil {

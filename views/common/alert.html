@@ -1,24 +1,24 @@
 {{if .flash}}
     {{if (index .flash "warning")}}
         <div class="alert alert-warning" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" data-i18n-aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-            <span class="sr-only">Warning:</span>
-            {{index .flash "warning"}}
+            <span class="sr-only"><span data-i18n="Warning:">Warning:</span></span>
+            <span data-i18n-message>{{index .flash "warning"}}</span>
         </div>
     {{else if (index .flash "error")}}
         <div class="alert alert-danger" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" data-i18n-aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-            <span class="sr-only">Error:</span>
-            {{index .flash "error"}}
+            <span class="sr-only"><span data-i18n="Error:">Error:</span></span>
+            <span data-i18n-message>{{index .flash "error"}}</span>
         </div>
     {{else if (index .flash "success")}}
         <div class="alert alert-success" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" data-i18n-aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-            <span class="sr-only">Success:</span>
-            {{index .flash "success"}}
+            <span class="sr-only"><span data-i18n="Success:">Success:</span></span>
+            <span data-i18n-message>{{index .flash "success"}}</span>
         </div>
     {{end}}
 {{end}}

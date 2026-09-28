@@ -1,13 +1,13 @@
 {{ template "layout/base.html" . }}
 
 {{define "head"}}
-<title>UI Settings</title>
+<title data-i18n="UI Settings">UI Settings</title>
 {{end}}
 
 {{define "body"}}
 <div class="card card-default">
   <div class="card-header with-border">
-    <h3 class="card-title">OpenVPN UI settings</h3>
+    <h3 class="card-title"><span data-i18n="OpenVPN UI settings">OpenVPN UI settings</span></h3>
     <div class="pull-right card-tools">
       <button type="button" class="btn btn-tool" data-card-widget="collapse">
         <i class="fa fa-minus"></i></button>
@@ -27,48 +27,48 @@
       </div>
       Disabled profile -->
       <div class="form-group">
-        <label class="col-form-label" for="name">Management interface address</label>
+        <label class="col-form-label" for="name"><span data-i18n="Management interface address">Management interface address</span></label>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fas fa-gear"></i></span>
           </div>
-          <input type="text" class="form-control" id="MIAddress" title="OpenVPN management interface address."  name="MIAddress" placeholder="openvpn:2080" value="{{ .Settings.MIAddress }}">
+          <input type="text" class="form-control" id="MIAddress" title="OpenVPN management interface address."  name="MIAddress" placeholder="openvpn:2080" value="{{ .Settings.MIAddress }}" data-i18n-title="OpenVPN management interface address.">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="col-form-label" for="name">Management interface protocol</label>
+        <label class="col-form-label" for="name"><span data-i18n="Management interface protocol">Management interface protocol</span></label>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-exchange"></i></span>
           </div>
-          <input type="text" class="form-control" id="MINetwork" title="OpenVPN management interface protocol." name="MINetwork" placeholder="tcp" value="{{ .Settings.MINetwork }}">
+          <input type="text" class="form-control" id="MINetwork" title="OpenVPN management interface protocol." name="MINetwork" placeholder="tcp" value="{{ .Settings.MINetwork }}" data-i18n-title="OpenVPN management interface protocol.">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="col-form-label" for="name">OpenVPN ConfigPath</label>
+        <label class="col-form-label" for="name"><span data-i18n="OpenVPN ConfigPath">OpenVPN ConfigPath</span></label>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fas fa-folder"></i></span>
           </div>
-          <input type="text" class="form-control" id="OVConfigPath" name="OVConfigPath" title="OpenVPN configuration path." placeholder="/etc/openvpn" value="{{ .Settings.OVConfigPath }}">
+          <input type="text" class="form-control" id="OVConfigPath" name="OVConfigPath" title="OpenVPN configuration path." placeholder="/etc/openvpn" value="{{ .Settings.OVConfigPath }}" data-i18n-title="OpenVPN configuration path.">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="col-form-label" for="name">EasyRSA ConfigPath</label> <strong><span style="color:#337ab7" title="New format in this version">!</span></strong>
+        <label class="col-form-label" for="name"><span data-i18n="EasyRSA ConfigPath">EasyRSA ConfigPath</span></label> <strong><span style="color:#337ab7" title="New format in this version" data-i18n-title="New format in this version">!</span></strong>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
             <span class="input-group-text"><i class="fas fa-folder"></i></span>
           </div>
-          <input type="text" class="form-control" id="EasyRSAPath" name="EasyRSAPath" title="EasyRSA configuration path." placeholder="/usr/share/easy-rsa" value="{{ .Settings.EasyRSAPath }}">
+          <input type="text" class="form-control" id="EasyRSAPath" name="EasyRSAPath" title="EasyRSA configuration path." placeholder="/usr/share/easy-rsa" value="{{ .Settings.EasyRSAPath }}" data-i18n-title="EasyRSA configuration path.">
         </div>
       </div>
 
       {{ .xsrfdata }}
 
-      <button type="submit" class="btn btn-primary" style="width: 125px;">Save Config</button>  
+      <button type="submit" class="btn btn-primary" style="width: 125px;"><span data-i18n="Save Config">Save Config</span></button>
     </div>
         <!-- /.card-body -->
   </form>

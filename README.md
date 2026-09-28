@@ -2,6 +2,10 @@
 
 OpenVPN server web administration interface.
 
+### 本地源码 Docker 试用（含中英文）
+
+请按 [Linux Docker 部署说明](docs/docker-deployment.zh-CN.md) 操作：复制 `.env.example` 为 `.env`，填写 VPN 地址、内网网段和管理员密码，再执行 `docker compose up -d --build`。首次启动自动初始化配置和证书，数据保存在 `data/`。本地中英文修改需要构建当前源码，不能用上游预编译镜像代替。
+
 Quick to deploy and easy to use, makes work with small OpenVPN environments a breeze.
 
 <img src="https://raw.githubusercontent.com/d3vilh/openvpn-ui/main/docs/images/OpenVPN-UI-Home.png" alt="Openvpn-ui home screen"/>
@@ -40,6 +44,22 @@ Part of following projects:
 * [Raspberry-gateway](https://github.com/d3vilh/raspberry-gateway) simple yet powerful home gateway environment with Pi-Hole +Unbound, VPN, Torrent client and Internet monitoring, all managed by Portainer.
 
 ## Installation
+
+### Interface language / 界面语言
+
+The login page and top navigation include an **English / 简体中文** selector.
+The first visit follows the browser language; your manual selection is remembered
+in this browser. Switching languages does not reload the page or discard form edits.
+Certificates, usernames, OpenVPN configuration values, and raw logs are not translated.
+
+登录页和顶部导航支持 **English / 简体中文** 切换。首次访问跟随浏览器语言，
+手动选择后会记住设置；切换语言不会刷新页面或清空尚未保存的表单。
+证书、用户名、OpenVPN 配置值和原始日志保持不变。
+
+These source changes require rebuilding the UI image. Using the upstream
+`d3vilh/openvpn-ui:latest` image alone does not include them.
+See [bilingual UI maintenance and tests](docs/bilingual-ui.md).
+
 For the best experience, it is recommended to deploy it within a Docker environment consisting of two distinct containers:
  - The [`d3vilh/openvpn-server`](https://github.com/d3vilh/openvpn-server) Back-End container (openvpn) for running OpenVPN server.
  - OpenVPN UI Front-End container (openvpn-ui) for efficient management of the OpenVPN server environment.

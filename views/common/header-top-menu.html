@@ -1,34 +1,34 @@
 <ul class="navbar-nav">
 
   <li {{if compare .RouterPattern "/"}}class="nav-item"{{end}}>
-    <a href="{{urlfor "MainController.Get"}}" class="nav-link">Home <span class="sr-only">(current)</span></a>
+    <a href="{{urlfor "MainController.Get"}}" class="nav-link"><span data-i18n="Home">Home</span> <span class="sr-only"><span data-i18n="(current)">(current)</span></span></a>
   </li>
 
 
 {{ if .Userinfo.IsAdmin }}
   <li class="dropdown">
     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-      Configuration </a>
+      <span data-i18n="Configuration">Configuration</span> </a>
 
     <ul class="dropdown-menu" role="menu">
       <li {{if compare .RouterPattern "/settings"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "SettingsController.Get"}}" class="dropdown-item">OpenVPN UI</a>
+        <a href="{{urlfor "SettingsController.Get"}}" class="dropdown-item"><span data-i18n="OpenVPN UI">OpenVPN UI</span></a>
       </li>
 
       <li {{if compare .RouterPattern "/ov/config"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "OVConfigController.Get"}}" class="dropdown-item">OpenVPN Server</a>
+        <a href="{{urlfor "OVConfigController.Get"}}" class="dropdown-item"><span data-i18n="OpenVPN Server">OpenVPN Server</span></a>
       </li>
 
       <li {{if compare .RouterPattern "/ov/clientconfig"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "OVClientConfigController.Get"}}" class="dropdown-item">OpenVPN Client</a>
+        <a href="{{urlfor "OVClientConfigController.Get"}}" class="dropdown-item"><span data-i18n="OpenVPN Client">OpenVPN Client</span></a>
       </li>
 
       <li {{if compare .RouterPattern "/easyrsa/config"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "EasyRSAConfigController.Get"}}" class="dropdown-item">EasyRSA vars</a>
+        <a href="{{urlfor "EasyRSAConfigController.Get"}}" class="dropdown-item"><span data-i18n="EasyRSA vars">EasyRSA vars</span></a>
       </li>
 
       <li {{if compare .RouterPattern "/dangerzone"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "DangerController.Get"}}" class="dropdown-item">Maintenance</a>
+        <a href="{{urlfor "DangerController.Get"}}" class="dropdown-item"><span data-i18n="Maintenance">Maintenance</span></a>
       </li>
     </ul>
   </li>
@@ -37,10 +37,10 @@
 
 
   <li {{if compare .RouterPattern "/certificates"}}class="nav-item"{{end}}>
-    <a href="{{urlfor "CertificatesController.Get"}}" class="nav-link">Certificates</a>
+    <a href="{{urlfor "CertificatesController.Get"}}" class="nav-link"><span data-i18n="Certificates">Certificates</span></a>
   </li>
 
   <li {{if compare .RouterPattern "/logs"}}class="nav-item"{{end}}>
-    <a href="{{urlfor "LogsController.Get"}}" class="nav-link">Logs</a>
+    <a href="{{urlfor "LogsController.Get"}}" class="nav-link"><span data-i18n="Logs">Logs</span></a>
   </li>
 </ul>

@@ -1,7 +1,7 @@
 {{ template "layout/base.html" . }}
 
 {{define "head"}}
-<title>OpenVPN - Settings</title>
+<title data-i18n="OpenVPN - Settings">OpenVPN - Settings</title>
 {{end}}
 
 {{define "body"}}
@@ -10,7 +10,7 @@
   <div class="col-md-12">
     <div class="card card-default">
       <div class="card-header">
-        <h3 class="card-title"> {{ if eq (printf "%d" $.SettingsC.FuncMode) "1" }}2FA Authorisation is <b style="color: #00a65a;">Enabled</b></h3>{{else}}<h3 class="card-title"> Client Certificates</h3>{{end}}
+        <h3 class="card-title"> {{ if eq (printf "%d" $.SettingsC.FuncMode) "1" }}<span data-i18n="2FA Authorisation is">2FA Authorisation is</span> <b style="color: #00a65a;"><span data-i18n="Enabled">Enabled</span></b></h3>{{else}}<h3 class="card-title"> <span data-i18n="Client Certificates">Client Certificates</span></h3>{{end}}
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="collapse">
           <i class="fa fa-minus"></i></button>
@@ -25,14 +25,14 @@
           <table class="table no-margin">
             <thead>
             <tr>
-              <th>Name</th>
-              <th>State</th>
-              <th>Static IP</th>
-              <th>Expiration</th>
-              <th>Revocation</th>
+              <th><span data-i18n="Name">Name</span></th>
+              <th><span data-i18n="State">State</span></th>
+              <th><span data-i18n="Static IP">Static IP</span></th>
+              <th><span data-i18n="Expiration">Expiration</span></th>
+              <th><span data-i18n="Revocation">Revocation</span></th>
               <!--th>Serial</th-->
-              <th>Details</th>
-              <th>Actions</th>
+              <th><span data-i18n="Details">Details</span></th>
+              <th><span data-i18n="Actions">Actions</span></th>
             </tr>
             </thead>
             <tbody>
@@ -104,20 +104,20 @@
                   {{end}}
                     <td class="align-middle">
                   {{ if and (eq .Revocation "") (ne .Details.Name "") }}
-                      <a href="{{urlfor "CertificatesController.Renew" ":key" .Details.Name ":localip" .Details.LocalIP ":serial" .Serial ":tfaname" .Details.TFAName}}" class="btn btn-primary btn-xs" title="Renew" style="font-size: 80%;">Renew</a>
+                      <a href="{{urlfor "CertificatesController.Renew" ":key" .Details.Name ":localip" .Details.LocalIP ":serial" .Serial ":tfaname" .Details.TFAName}}" class="btn btn-primary btn-xs" title="Renew" style="font-size: 80%;" data-i18n-title="Renew"><span data-i18n="Renew">Renew</span></a>
                   {{else}}
-                      <a class="btn btn-default btn-xs" disabled>Renew</a>
+                      <a class="btn btn-default btn-xs" disabled><span data-i18n="Renew">Renew</span></a>
                   {{end}}
 
                   {{ if and (eq .Revocation "") (ne .Details.Name "") }}
-                      <a href="{{urlfor "CertificatesController.Revoke" ":key" .Details.Name ":serial" .Serial ":tfaname" .Details.TFAName}}" class="btn btn-warning btn-xs" title="Revoke" style="font-size: 80%;">Revoke</a>
+                      <a href="{{urlfor "CertificatesController.Revoke" ":key" .Details.Name ":serial" .Serial ":tfaname" .Details.TFAName}}" class="btn btn-warning btn-xs" title="Revoke" style="font-size: 80%;" data-i18n-title="Revoke"><span data-i18n="Revoke">Revoke</span></a>
                   {{else}}
-                      <a class="btn btn-default btn-xs" disabled>Revoke</a>
+                      <a class="btn btn-default btn-xs" disabled><span data-i18n="Revoke">Revoke</span></a>
                   {{end}}
                   {{ if eq .Revocation ""}}
-                      <a class="btn btn-default btn-xs" disabled>Delete</a>
+                      <a class="btn btn-default btn-xs" disabled><span data-i18n="Delete">Delete</span></a>
                   {{else}}
-                      <a href="{{urlfor "CertificatesController.Burn" ":key" .Details.CN ":serial" .Serial ":tfaname" .Details.TFAName}}" class="btn btn-danger btn-xs" title="Burn" style="font-size: 80%;">Delete</a>
+                      <a href="{{urlfor "CertificatesController.Burn" ":key" .Details.CN ":serial" .Serial ":tfaname" .Details.TFAName}}" class="btn btn-danger btn-xs" title="Burn" style="font-size: 80%;" data-i18n-title="Burn"><span data-i18n="Delete">Delete</span></a>
                   {{end}}
                     </td>
               </tr>
@@ -125,8 +125,8 @@
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h4 class="modal-title">{{ .Details.CN }} Details</h4>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <h4 class="modal-title">{{ .Details.CN }} <span data-i18n="Details">Details</span></h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-i18n-aria-label="Close">
                       <span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
@@ -135,40 +135,40 @@
                         {{ if eq (printf "%d" $.SettingsC.FuncMode) "1" }}
                         <!--dt class="copy-details">2FA Issuer String: </dt>
                         <dd class="copy-details">{{ $.SettingsC.TFAIssuer }}</dd-->
-                        <dt class="copy-details"><b><h4>2FA Name: </h4></b></dt>
+                        <dt class="copy-details"><b><h4><span data-i18n="2FA Name:">2FA Name:</span> </h4></b></dt>
                         <dd class="copy-details 2fa-name"><h4 style="color: #3c8dbc">{{ .Details.TFAName }}</h4></dd>
-                        <dt class="copy-details"><b><h5>Certificate Name:</h5></b></dt>
+                        <dt class="copy-details"><b><h5><span data-i18n="Certificate Name:">Certificate Name:</span></h5></b></dt>
                         <dd class="copy-details cert-name"><h5 style="color: #3c8dbc">{{ .Details.CN }}</h5></dd>
                         {{else}}
-                        <dt class="copy-details"><b><h4>Name: </h4></b></dt>
+                        <dt class="copy-details"><b><h4><span data-i18n="Name:">Name:</span> </h4></b></dt>
                         <dd class="copy-details cert-name"><h4 style="color: #3c8dbc">{{ .Details.CN }}</h4></dd>
                         {{end}}
-                        <dt class="copy-details">Status: </dt>
-                        <dd class="copy-details">{{if eq .EntryType "V"}}<span class="badge bg-success" style="font-size: 110%;" >Valid</span>{{else if eq .EntryType "R"}}<span class="badge bg-danger" style="font-size: 110%;">Revoked</span>{{else}}Unknown{{end}}</dd>
-                        <dt class="copy-details">Expiration Time: </dt>
-                        <dd class="copy-details exp-time">{{ if and .IsExpiring (eq .Revocation "") (ne .Details.Name "") }}<span class="badge bg-warning" style="font-size: 110%;">{{ dateformat .ExpirationT "2006-01-02 15:04"}} <b> This Certificate will soon expire!</b></span>{{else}}<span class="badge bg-success">{{ dateformat .ExpirationT "2006-01-02 15:04"}}</span>{{end}}</dd>
-                        <dt class="copy-details">Revoke Time: </dt>
-                        <dd class="copy-details">{{if ne .Revocation ""}} <span class="badge bg-warning" style="font-size: 110%;">{{ dateformat .RevocationT "2006-01-02 15:04"}}</span> {{else}}<span id="helpBlock" class="text-muted">Not Revoked</span>{{end}}</dd>
-                        <dt class="copy-details">IP Address: </dt>
+                        <dt class="copy-details"><span data-i18n="Status:">Status:</span> </dt>
+                        <dd class="copy-details">{{if eq .EntryType "V"}}<span class="badge bg-success" style="font-size: 110%;" ><span data-i18n="Valid">Valid</span></span>{{else if eq .EntryType "R"}}<span class="badge bg-danger" style="font-size: 110%;"><span data-i18n="Revoked">Revoked</span></span>{{else}}<span data-i18n="Unknown">Unknown</span>{{end}}</dd>
+                        <dt class="copy-details"><span data-i18n="Expiration Time:">Expiration Time:</span> </dt>
+                        <dd class="copy-details exp-time">{{ if and .IsExpiring (eq .Revocation "") (ne .Details.Name "") }}<span class="badge bg-warning" style="font-size: 110%;">{{ dateformat .ExpirationT "2006-01-02 15:04"}} <b> <span data-i18n="This Certificate will soon expire!">This Certificate will soon expire!</span></b></span>{{else}}<span class="badge bg-success">{{ dateformat .ExpirationT "2006-01-02 15:04"}}</span>{{end}}</dd>
+                        <dt class="copy-details"><span data-i18n="Revoke Time:">Revoke Time:</span> </dt>
+                        <dd class="copy-details">{{if ne .Revocation ""}} <span class="badge bg-warning" style="font-size: 110%;">{{ dateformat .RevocationT "2006-01-02 15:04"}}</span> {{else}}<span id="helpBlock" class="text-muted"><span data-i18n="Not Revoked">Not Revoked</span></span>{{end}}</dd>
+                        <dt class="copy-details"><span data-i18n="IP Address:">IP Address:</span> </dt>
                         <dd class="copy-details"><span id="helpBlock" class="text-muted">{{ .Details.LocalIP }}</span></dd>
-                        <dt class="copy-details">Serial: </dt>
+                        <dt class="copy-details"><span data-i18n="Serial:">Serial:</span> </dt>
                         <dd class="copy-details"><span id="helpBlock" class="text-muted">{{ .Serial }}</span></dd>
-                        <dt class="copy-details">Registered e-mail: </dt>
+                        <dt class="copy-details"><span data-i18n="Registered e-mail:">Registered e-mail:</span> </dt>
                         <dd class="copy-details reg-email"><a href="mailto:{{ .Details.Email }}">{{ .Details.Email }}</a></dd>
-                        <dt class="copy-details">Registered Country: </dt>
+                        <dt class="copy-details"><span data-i18n="Registered Country:">Registered Country:</span> </dt>
                         <dd class="copy-details"><span id="helpBlock" class="text-muted">{{ .Details.Country }}</span></dd>
-                        <dt class="copy-details">Registered State/Region: </dt>
+                        <dt class="copy-details"><span data-i18n="Registered State/Region:">Registered State/Region:</span> </dt>
                         <dd class="copy-details"><span id="helpBlock" class="text-muted">{{ .Details.State }}</span></dd>
-                        <dt class="copy-details">Registered City: </dt>
+                        <dt class="copy-details"><span data-i18n="Registered City:">Registered City:</span> </dt>
                         <dd class="copy-details"><span id="helpBlock" class="text-muted">{{ .Details.City }}</span></dd>
-                        <dt class="copy-details">Registered Organisation: </dt>
+                        <dt class="copy-details"><span data-i18n="Registered Organisation:">Registered Organisation:</span> </dt>
                         <dd class="copy-details reg-org"><span id="helpBlock" class="text-muted">{{ .Details.Organisation }}</span></dd>
-                        <dt class="copy-details">Registered Unit: </dt>
+                        <dt class="copy-details"><span data-i18n="Registered Unit:">Registered Unit:</span> </dt>
                         <dd class="copy-details"><span id="helpBlock" class="text-muted">{{ .Details.OrganisationUnit }}</span></dd>
                         {{ if eq (printf "%d" $.SettingsC.FuncMode) "1" }}
                         <!--dt class="copy-details">2FA Issuer String: </dt>
                         <dd class="copy-details">{{ $.SettingsC.TFAIssuer }}</dd-->
-                        <dt class="copy-details">Two Factor Authorisation (2FA) QR Code:</dt>
+                        <dt class="copy-details"><span data-i18n="Two Factor Authorisation (2FA) QR Code:">Two Factor Authorisation (2FA) QR Code:</span></dt>
                         <dd class="copy-details">
                           {{ if and (eq .EntryType "V") (ne .Details.Name "") }}
                             <div class="text-left qr-code">
@@ -179,9 +179,9 @@
                         {{end}}
                       </dl>
                       <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary copy-btn copy-modal-data-btn" style="width: 135px;">Copy</button>
-                        <button type="button" class="btn btn-success send-email-with-qr-btn" style="width: 135px;">Send Email</button>
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><span data-i18n="Close">Close</span></button>
+                        <button type="submit" class="btn btn-primary copy-btn copy-modal-data-btn" style="width: 135px;"><span data-i18n="Copy">Copy</span></button>
+                        <button type="button" class="btn btn-success send-email-with-qr-btn" style="width: 135px;"><span data-i18n="Send Email">Send Email</span></button>
                       </div>
                       </div>
                     </div>
@@ -209,7 +209,7 @@
   <div class="col-md-12">
     <div class="card card-primary">
       <div class="card-header with-border">
-        <h3 class="card-title">Create New Client Certificate</h3>
+        <h3 class="card-title"><span data-i18n="Create New Client Certificate">Create New Client Certificate</span></h3>
         <div class="pull-left card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="collapse">
           <i class="fa fa-minus"></i></button>
@@ -219,7 +219,7 @@
         {{template "common/alert.html" .}}
       <div class="card-body">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-default">
-          Create Certificate
+          <span data-i18n="Create Certificate">Create Certificate</span>
         </button>
         <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "Name" }}</span>
       </div>
@@ -231,8 +231,8 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Create Certificate</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <h4 class="modal-title"><span data-i18n="Create Certificate">Create Certificate</span></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-i18n-aria-label="Close">
         <span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body" id="FuncMode" value="{{ $.SettingsC.FuncMode }}">
@@ -242,78 +242,78 @@
         <form role="form" action="{{urlfor "CertificatesController.Post"}}" method="post">
           <div class="box-body">
             <div class="form-group has-success {{if field_error_exist .validation "Name" }}has-error{{end}}">
-              <label class="control-label" for="name" title="Name should not have spaces."><i class="fa fa-bell-o"></i>Name</label>
-              <input type="text" class="form-control is-warning" pattern="^[^\s]+$" placeholder="Certificate Name" id="Name" name="Name">
-              <span class="text-muted" title="Name should not have spaces.">Common name of the certificate.<span>
+              <label class="control-label" for="name" title="Name should not have spaces." data-i18n-title="Name should not have spaces."><i class="fa fa-bell-o"></i><span data-i18n="Name">Name</span></label>
+              <input type="text" class="form-control is-warning" pattern="^[^\s]+$" placeholder="Certificate Name" id="Name" name="Name" data-i18n-placeholder="Certificate Name">
+              <span class="text-muted" title="Name should not have spaces." data-i18n-title="Name should not have spaces."><span data-i18n="Common name of the certificate.">Common name of the certificate.</span><span>
             </div>
 
             {{ if eq (printf "%d" $.SettingsC.FuncMode) "1" }}
             <div class="form-group has-success {{if field_error_exist .validation "TFAName" }}has-error{{end}}">
-              <label class="control-label" for="tfaname" title="2FAName should not have spaces."><i class="fa fa-bell-o"></i>2FA Name</label>
+              <label class="control-label" for="tfaname" title="2FAName should not have spaces." data-i18n-title="2FAName should not have spaces."><i class="fa fa-bell-o"></i><span data-i18n="2FA Name">2FA Name</span></label>
               <input type="text" class="form-control is-warning" pattern="^[^\s]+$" placeholder="alice@wonderland.ua" id="TFAName" name="TFAName">
-              <span class="text-muted" title="Name should not have spaces.">Unique 2FA name of the certificate.<span>
+              <span class="text-muted" title="Name should not have spaces." data-i18n-title="Name should not have spaces."><span data-i18n="Unique 2FA name of the certificate.">Unique 2FA name of the certificate.</span><span>
             </div>
 
             <div class="form-group" id="tfa-issuer">
-              <label class="control-label" for="tfaissuer" title="TFAIssuer should have URL format."></i>2FA Issuer String</label>
+              <label class="control-label" for="tfaissuer" title="TFAIssuer should have URL format." data-i18n-title="TFAIssuer should have URL format."></i><span data-i18n="2FA Issuer String">2FA Issuer String</span></label>
               <input type="text" class="form-control" placeholder="MFA%20OpenVPN-UI" id="tfaissuer" name="TFAIssuer" value="{{ $.SettingsC.TFAIssuer }}">
-              <span class="text-muted" title="Name should not have spaces.">2FA Issuer for the QR Code sting.<span>
+              <span class="text-muted" title="Name should not have spaces." data-i18n-title="Name should not have spaces."><span data-i18n="2FA Issuer for the QR Code sting.">2FA Issuer for the QR Code sting.</span><span>
             </div>
             {{end}}
     
             <div class="form-group">
-              <label for="name">Passphrase (Optional)</label>
-              <input type="password" class="form-control" placeholder="Enter Password" id="password-input" id="passphrase" name="passphrase">
-              <a href="#" class="password-control" title="Show or Hide Password"></a>
-              <span class="text-muted">Passphrase is used for privte key protection.</span>
+              <label for="name"><span data-i18n="Passphrase (Optional)">Passphrase (Optional)</span></label>
+              <input type="password" class="form-control" placeholder="Enter Password" id="password-input" id="passphrase" name="passphrase" data-i18n-placeholder="Enter Password">
+              <a href="#" class="password-control" title="Show or Hide Password" data-i18n-title="Show or Hide Password"></a>
+              <span class="text-muted"><span data-i18n="Passphrase is used for privte key protection.">Passphrase is used for privte key protection.</span></span>
             </div>
     
             <div class="form-group">
-              <label for="name" title="IPv4 without subnet">Client Static IP (Optional)</label>
-              <input type="text" class="form-control" placeholder="Enter Static IP" pattern="^(\d{1,3}\.){3}\d{1,3}$" id="staticip" name="staticip">
-              <span class="text-muted">Client Static IP used as a local Client IP for subnet split.</span>
+              <label for="name" title="IPv4 without subnet" data-i18n-title="IPv4 without subnet"><span data-i18n="Client Static IP (Optional)">Client Static IP (Optional)</span></label>
+              <input type="text" class="form-control" placeholder="Enter Static IP" pattern="^(\d{1,3}\.){3}\d{1,3}$" id="staticip" name="staticip" data-i18n-placeholder="Enter Static IP">
+              <span class="text-muted"><span data-i18n="Client Static IP used as a local Client IP for subnet split.">Client Static IP used as a local Client IP for subnet split.</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="EASYRSA_REQ_EMAIL">Client Email</label>
-              <input type="email" class="form-control" placeholder="Client Email" id="EasyRSAReqEmail" name="EasyRSAReqEmail" value="{{ .EasyRSA.EasyRSAReqEmail }}">
-              <span class="text-muted">The New Client e-mail address.</span>
+              <label for="name" title="EASYRSA_REQ_EMAIL"><span data-i18n="Client Email">Client Email</span></label>
+              <input type="email" class="form-control" placeholder="Client Email" id="EasyRSAReqEmail" name="EasyRSAReqEmail" value="{{ .EasyRSA.EasyRSAReqEmail }}" data-i18n-placeholder="Client Email">
+              <span class="text-muted"><span data-i18n="The New Client e-mail address.">The New Client e-mail address.</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="EASYRSA_REQ_COUNTRY">Expired Days</label>
+              <label for="name" title="EASYRSA_REQ_COUNTRY"><span data-i18n="Expired Days">Expired Days</span></label>
               <input type="number" min="1" class="form-control" placeholder="825" pattern="^\d{1,6}$" id="EasyRSACertExpire" name="EasyRSACertExpire" value="{{ .EasyRSA.EasyRSACertExpire }}">
-              <span class="text-muted">Number of days until Client certificate expire. The recommended value is 825.</span>
+              <span class="text-muted"><span data-i18n="Number of days until Client certificate expire. The recommended value is 825.">Number of days until Client certificate expire. The recommended value is 825.</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="Cert days to expire">Client Country Name</label>
+              <label for="name" title="Cert days to expire" data-i18n-title="Cert days to expire"><span data-i18n="Client Country Name">Client Country Name</span></label>
               <input type="text" class="form-control" placeholder="UA" pattern="^[A-Za-z]{2}$" id="EasyRSAReqCountry" name="EasyRSAReqCountry" value="{{ .EasyRSA.EasyRSAReqCountry }}">
-              <span class="text-muted">The two-letter DN Organisational field for Country Code (e.g. UA).</span>
+              <span class="text-muted"><span data-i18n="The two-letter DN Organisational field for Country Code (e.g. UA).">The two-letter DN Organisational field for Country Code (e.g. UA).</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="EASYRSA_REQ_PROVINCE">Client State or Region Name</label>
+              <label for="name" title="EASYRSA_REQ_PROVINCE"><span data-i18n="Client State or Region Name">Client State or Region Name</span></label>
               <input type="text" class="form-control" placeholder="KY" pattern="^[A-Za-z]{2}$" id="EasyRSAReqProvince" name="EasyRSAReqProvince" value="{{ .EasyRSA.EasyRSAReqProvince }}">
-              <span class="text-muted">The two-letter DN Organisational field for province code (e.g. KY for "Kyiv region").</span>
+              <span class="text-muted"><span data-i18n="The two-letter DN Organisational field for province code (e.g. KY for &quot;Kyiv region&quot;).">The two-letter DN Organisational field for province code (e.g. KY for "Kyiv region").</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="EASYRSA_REQ_CITY">Client City Name</label>
+              <label for="name" title="EASYRSA_REQ_CITY"><span data-i18n="Client City Name">Client City Name</span></label>
               <input type="text" class="form-control" placeholder="Kyiv" id="EasyRSAReqCity" name="EasyRSAReqCity" value="{{ .EasyRSA.EasyRSAReqCity }}">
-              <span class="text-muted">The city of DN Organisation.</span>
+              <span class="text-muted"><span data-i18n="The city of DN Organisation.">The city of DN Organisation.</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="EASYRSA_REQ_ORG">Client Organisation</label>
+              <label for="name" title="EASYRSA_REQ_ORG"><span data-i18n="Client Organisation">Client Organisation</span></label>
               <input type="text" class="form-control" placeholder="SweetHome" id="EasyRSAReqOrg" name="EasyRSAReqOrg" value="{{ .EasyRSA.EasyRSAReqOrg }}">
-              <span class="text-muted">The Client name of DN Organisation.</span>
+              <span class="text-muted"><span data-i18n="The Client name of DN Organisation.">The Client name of DN Organisation.</span></span>
             </div>
 
             <div class="form-group">
-              <label for="name" title="EASYRSA_REQ_OU">Client Organisation Unit Name</label>
+              <label for="name" title="EASYRSA_REQ_OU"><span data-i18n="Client Organisation Unit Name">Client Organisation Unit Name</span></label>
               <input type="text" class="form-control" placeholder="GarageVPN" id="EasyRSAReqOu" name="EasyRSAReqOu" value="{{ .EasyRSA.EasyRSAReqOu }}">
-              <span class="text-muted">The Client Organisational Unit of DN Organisation.</span>
+              <span class="text-muted"><span data-i18n="The Client Organisational Unit of DN Organisation.">The Client Organisational Unit of DN Organisation.</span></span>
             </div>
 
 
@@ -322,8 +322,8 @@
           <!-- /.box-body -->
 
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><span data-i18n="Close">Close</span></button>
+            <button type="submit" class="btn btn-primary"><span data-i18n="Create">Create</span></button>
           </div>
 
         </form>
@@ -334,7 +334,7 @@
 
 <div class="card card-default">
   <div class="card-header with-border">
-    <h3 class="card-title">OpenVPN Server Control</h3>
+    <h3 class="card-title"><span data-i18n="OpenVPN Server Control">OpenVPN Server Control</span></h3>
     <div class="pull-left card-tools">
       <button type="button" class="btn btn-tool" data-card-widget="collapse">
       <i class="fa fa-minus"></i></button>
@@ -342,11 +342,11 @@
   </div>
   <!-- /.box-header -->
   <div class="card-body">
-    <span id="helpBlock" class="text-muted">If you are revoking Certificate, don't forget to restart OpenVPN Server to disconnect all active client sessions and make revocation to take the effect.<br/></span><br>
-    <a href="javascript:$.MyAPP.Restart('SIGUSR1')"  class="btn btn-warning btn-primary" style="width: 145px;" title="Conditional Restart (SIGUSR1)">Restart Server</a>
-    &nbsp; OpenVPN Server Conditional Restart to reinitiate all active client sessions. <br><br>
-    <a href="{{urlfor "CertificatesController.Restart"}}" class="btn btn-danger btn-primary" style="width: 145px;" title="Restart OpenVPN container">Restart Container</a> 
-    &nbsp; OpenVPN Container Restart to re-apply Firewall rules and restart OpenVPN Server. Will take more time than regular Restart. 
+    <span id="helpBlock" class="text-muted"><span data-i18n="If you are revoking Certificate, don&#x27;t forget to restart OpenVPN Server to disconnect all active client sessions and make revocation to take the effect.">If you are revoking Certificate, don't forget to restart OpenVPN Server to disconnect all active client sessions and make revocation to take the effect.</span><br/></span><br>
+    <a href="javascript:$.MyAPP.Restart('SIGUSR1')"  class="btn btn-warning btn-primary" style="width: 145px;" title="Conditional Restart (SIGUSR1)" data-i18n-title="Conditional Restart (SIGUSR1)"><span data-i18n="Restart Server">Restart Server</span></a>
+    <span data-i18n="OpenVPN Server Conditional Restart to reinitiate all active client sessions.">&nbsp; OpenVPN Server Conditional Restart to reinitiate all active client sessions.</span> <br><br>
+    <a href="{{urlfor "CertificatesController.Restart"}}" class="btn btn-danger btn-primary" style="width: 145px;" title="Restart OpenVPN container" data-i18n-title="Restart OpenVPN container"><span data-i18n="Restart Container">Restart Container</span></a>
+    <span data-i18n="OpenVPN Container Restart to re-apply Firewall rules and restart OpenVPN Server. Will take more time than regular Restart.">&nbsp; OpenVPN Container Restart to re-apply Firewall rules and restart OpenVPN Server. Will take more time than regular Restart.</span>
   </div>
   <!-- /.box-footer -->
 </div>
@@ -398,4 +398,4 @@ $('.send-email-with-qr-btn').on('click', function () {
   window.location.href = mailtoLink;
 });
   </script>
-  
+

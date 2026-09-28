@@ -1,0 +1,68 @@
+name: openvpn-trial
+
+x-app: &app
+  image: openvpn-ui-local:bilingual
+  build:
+    context: .
+  volumes:
+    - ./data/openvpn:/etc/openvpn
+    - ./data/db:/opt/openvpn-ui/db
+    - ./data/log:/var/log/openvpn
+
+services:
+  init:
+    <<: *app
+    command: ["init"]
+    environment:
+      OPENVPN_PUBLIC_HOST: ${OPENVPN_PUBLIC_HOST:?Set OPENVPN_PUBLIC_HOST in .env}
+      OPENVPN_PUBLIC_PORT: ${OPENVPN_PUBLIC_PORT:-1194}
+      OPENVPN_VPN_CIDR: ${OPENVPN_VPN_CIDR:-10.8.0.0/24}
+      OPENVPN_LAN_CIDR: ${OPENVPN_LAN_CIDR:-192.168.18.0/24}
+      OPENVPN_ADMIN_USERNAME: ${OPENVPN_ADMIN_USERNAME:-admin}
+      OPENVPN_ADMIN_PASSWORD: ${OPENVPN_ADMIN_PASSWORD:?Set OPENVPN_ADMIN_PASSWORD in .env}
+    restart: "no"
+
+  openvpn:
+    <<: *app
+    container_name: openvpn
+    command: ["server"]
+    cap_add: [NET_ADMIN]
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv4.ip_forward: "1"
+    ports:
+      - "${OPENVPN_PUBLIC_PORT:-1194}:1194/udp"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo quit | nc -w 2 127.0.0.1 2080 | grep -q 'OpenVPN Management'"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  openvpn-ui:
+    <<: *app
+    container_name: openvpn-ui
+    command: ["ui"]
+    environment:
+      OPENVPN_ADMIN_USERNAME: ${OPENVPN_ADMIN_USERNAME:-admin}
+      OPENVPN_ADMIN_PASSWORD: ${OPENVPN_ADMIN_PASSWORD:?Set OPENVPN_ADMIN_PASSWORD in .env}
+    volumes:
+      - ./data/openvpn:/etc/openvpn
+      - ./data/db:/opt/openvpn-ui/db
+      - ./data/log:/var/log/openvpn
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "${UI_BIND_IP:-127.0.0.1}:${UI_PORT:-8080}:8080/tcp"
+    depends_on:
+      openvpn:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/login"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

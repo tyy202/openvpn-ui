@@ -1,7 +1,7 @@
 {{ template "layout/base.html" . }}
 
 {{define "head"}}
-<title>Maintenance</title>
+<title data-i18n="Maintenance">Maintenance</title>
 {{end}}
 
 {{define "body"}}
@@ -9,7 +9,7 @@
   <!-- /.card-body -->
   <div class="card card-primary">
     <div class="card-header with-border">
-      <h3 class="card-title">Restart Actions</h3>
+      <h3 class="card-title"><span data-i18n="Restart Actions">Restart Actions</span></h3>
       <div class="pull-right card-tools">
         <button type="button" class="btn btn-tool" data-card-widget="collapse">
           <i class="fa fa-minus"></i></button>
@@ -22,18 +22,18 @@
     <form role="form" action="{{urlfor "DangerController.Post"}}" method="post">
       <div class="card-body">
         <div class="form-group">
-            <a href="javascript:$.MyAPP.Restart('SIGUSR1')" class="btn btn-primary" style="width: 145px;" title="Restart">Restart Server</a>
-            &nbsp; <b>Conditional</b> OpenVPN Server restart will apply new configuration and re-initiate all active clients sessions.
+            <a href="javascript:$.MyAPP.Restart('SIGUSR1')" class="btn btn-primary" style="width: 145px;" title="Restart" data-i18n-title="Restart"><span data-i18n="Restart Server">Restart Server</span></a>
+            &nbsp; <b><span data-i18n="Conditional">Conditional</span></b> <span data-i18n="OpenVPN Server restart will apply new configuration and re-initiate all active clients sessions.">OpenVPN Server restart will apply new configuration and re-initiate all active clients sessions.</span>
         </div>
 
         <div class="form-group">
-            <a href="{{urlfor "DangerController.RestartContainer" ":key" "openvpn-server"}}" class="btn btn-primary" style="width: 145px;" title="Restart OpenVPN container">Restart Container</a> 
-            &nbsp; <b>Full</b> OpenVPN container restart to re-apply Firewall rules and reload OpenVPN Server. Takes more time than Conditional Restart. 
+            <a href="{{urlfor "DangerController.RestartContainer" ":key" "openvpn-server"}}" class="btn btn-primary" style="width: 145px;" title="Restart OpenVPN container" data-i18n-title="Restart OpenVPN container"><span data-i18n="Restart Container">Restart Container</span></a>
+            &nbsp; <b><span data-i18n="Full">Full</span></b> <span data-i18n="OpenVPN container restart to re-apply Firewall rules and reload OpenVPN Server. Takes more time than Conditional Restart.">OpenVPN container restart to re-apply Firewall rules and reload OpenVPN Server. Takes more time than Conditional Restart.</span>
         </div>
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.RestartContainer" ":key" "openvpn-ui"}}" class="btn btn-primary" style="width: 145px;" title="Restart OpenVPN-UI container">Restart UI</a> 
-          &nbsp; <b>OpenVPN-UI Container</b> Restart. Current Web session will be disconnected.
+          <a href="{{urlfor "DangerController.RestartContainer" ":key" "openvpn-ui"}}" class="btn btn-primary" style="width: 145px;" title="Restart OpenVPN-UI container" data-i18n-title="Restart OpenVPN-UI container"><span data-i18n="Restart UI">Restart UI</span></a>
+          &nbsp; <b><span data-i18n="OpenVPN-UI Container">OpenVPN-UI Container</span></b> <span data-i18n="Restart. Current Web session will be disconnected.">Restart. Current Web session will be disconnected.</span>
         </div>
 
         {{ .xsrfdata }} 
@@ -45,7 +45,7 @@
 
 <div class="card card-danger">
   <div class="card-header with-border">
-    <h3 class="card-title">Remove Actions</h3>
+    <h3 class="card-title"><span data-i18n="Remove Actions">Remove Actions</span></h3>
     <div class="pull-right card-tools">
       <button type="button" class="btn btn-tool" data-card-widget="collapse">
       <i class="fa fa-minus"></i></button>
@@ -53,35 +53,35 @@
   </div>
   <!-- /.card-header -->
   <div class="card-body">
-    <span><b style="color: #dd4b39;">DANGER ZONE!</b>  You can't rollback any actions of this section!</span><br>
+    <span><b style="color: #dd4b39;"><span data-i18n="DANGER ZONE!">DANGER ZONE!</span></b>  <span data-i18n="You can&#x27;t rollback any actions of this section!">You can't rollback any actions of this section!</span></span><br>
   <!-- form start -->
   <form role="form" action="{{urlfor "DangerController.Post"}}" method="post">
     <div class="card-body">
       <div class="form-group">
-        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_pki"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Remove PKI" onclick="return confirm('Are you sure you want to Remove PKI?');">Delete PKI</a>
-        &nbsp; <span class="text-muted">Delete PKI, all OpenVPN Server keys, and Client certificates. <b>This will prevent clients from connecting using their current certificates!</b></span>
+        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_pki"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Remove PKI" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Remove PKI?'));" data-i18n-title="Remove PKI"><span data-i18n="Delete PKI">Delete PKI</span></a>
+        &nbsp; <span class="text-muted"><span data-i18n="Delete PKI, all OpenVPN Server keys, and Client certificates.">Delete PKI, all OpenVPN Server keys, and Client certificates.</span> <b><span data-i18n="This will prevent clients from connecting using their current certificates!">This will prevent clients from connecting using their current certificates!</span></b></span>
       </div>
 
       <div class="form-group">
-        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_ovpn"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Remove All *.ovpn files" onclick="return confirm('Are you sure you want to Remove all *.ovpn files?');">Delete .ovpn</a>
-        &nbsp; <span class="text-muted">Delete &quot;*.ovpn&quot; files from the &quot;/etc/openvpn/clients&quot; directory.</span>
+        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_ovpn"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Remove All *.ovpn files" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Remove all *.ovpn files?'));" data-i18n-title="Remove All *.ovpn files"><span data-i18n="Delete .ovpn">Delete .ovpn</span></a>
+        &nbsp; <span class="text-muted"><span data-i18n="Delete &quot;*.ovpn&quot; files from the &quot;/etc/openvpn/clients&quot; directory.">Delete &quot;*.ovpn&quot; files from the &quot;/etc/openvpn/clients&quot; directory.</span></span>
       </div>
 
       <div class="form-group">
-        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_static_clients"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Static IP reservations" onclick="return confirm('Are you sure you want to Remove all static IP reservations?');">Delete Static</a>
-        &nbsp; <span class="text-muted">Delete all static IP reservations from the &quot;/etc/openvpn/staticclients&quot; directory.</span>
+        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_static_clients"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Static IP reservations" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Remove all static IP reservations?'));" data-i18n-title="Static IP reservations"><span data-i18n="Delete Static">Delete Static</span></a>
+        &nbsp; <span class="text-muted"><span data-i18n="Delete all static IP reservations from the &quot;/etc/openvpn/staticclients&quot; directory.">Delete all static IP reservations from the &quot;/etc/openvpn/staticclients&quot; directory.</span></span>
       </div>
 
       <div class="card-body">
         <div class="form-group">
-          <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_all"}}" class="btn btn-danger btn-primary" style="width: 125px;" title="Remove All" onclick="return confirm('Are you sure you want to Remove ALL?');">DELETE ALL</a>
-          &nbsp; <span class="text-muted">This button will execute all the seteps above, one by one - delete PKI, Server keys, Client certificates and &quot;*.ovpn&quot;.</span>
+          <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_all"}}" class="btn btn-danger btn-primary" style="width: 125px;" title="Remove All" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Remove ALL?'));" data-i18n-title="Remove All"><span data-i18n="DELETE ALL">DELETE ALL</span></a>
+          &nbsp; <span class="text-muted"><span data-i18n="This button will execute all the seteps above, one by one - delete PKI, Server keys, Client certificates and &quot;*.ovpn&quot;.">This button will execute all the seteps above, one by one - delete PKI, Server keys, Client certificates and &quot;*.ovpn&quot;.</span></span>
         </div>
       </div>
 
       <div class="form-group">
-        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_ovpn_db"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Remove OpenVPN-UI Database" onclick="return confirm('Are you sure you want to Remove OVPN DB?');">Drop DB</a>
-        &nbsp; <span class="text-muted">Drop the OpenVPN-UI Database. <b>Restart OpenVPN-UI after.</b> Database will be re-created during next OpenVPN UI container start.</span>
+        <a href="{{urlfor "DangerController.DeletePKI" ":key" "remove_ovpn_db"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Remove OpenVPN-UI Database" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Remove OVPN DB?'));" data-i18n-title="Remove OpenVPN-UI Database"><span data-i18n="Drop DB">Drop DB</span></a>
+        &nbsp; <span class="text-muted"><span data-i18n="Drop the OpenVPN-UI Database.">Drop the OpenVPN-UI Database.</span> <b><span data-i18n="Restart OpenVPN-UI after.">Restart OpenVPN-UI after.</span></b> <span data-i18n="Database will be re-created during next OpenVPN UI container start.">Database will be re-created during next OpenVPN UI container start.</span></span>
       </div>
 
       {{ .xsrfdata }}
@@ -94,7 +94,7 @@
 
   <div class="card card-danger">
     <div class="card-header with-border">
-      <h3 class="card-title">Initialization Actions</h3>
+      <h3 class="card-title"><span data-i18n="Initialization Actions">Initialization Actions</span></h3>
       <div class="pull-right card-tools">
         <button type="button" class="btn btn-tool" data-card-widget="collapse">
         <i class="fa fa-minus"></i></button>
@@ -102,50 +102,50 @@
     </div>
     <!-- /.card-header -->
     <div class="card-body">
-      <span><b style="color: #dd4b39;">DANGER ZONE!</b> You can't rollback any actions of this section!</span><br>
-      <span class="text-muted">Be cautious, expertise level is essential! <a href="https://github.com/OpenVPN/easy-rsa/blob/master/README.quickstart.md" target="_blank">EasyRSA Quick Guide</a>, <a href="https://github.com/OpenVPN/easy-rsa/tree/master/doc" target="_blank">EasyRSA detailed Guide</a>.</span>
+      <span><b style="color: #dd4b39;"><span data-i18n="DANGER ZONE!">DANGER ZONE!</span></b> <span data-i18n="You can&#x27;t rollback any actions of this section!">You can't rollback any actions of this section!</span></span><br>
+      <span class="text-muted"><span data-i18n="Be cautious, expertise level is essential!">Be cautious, expertise level is essential!</span> <a href="https://github.com/OpenVPN/easy-rsa/blob/master/README.quickstart.md" target="_blank"><span data-i18n="EasyRSA Quick Guide">EasyRSA Quick Guide</span></a>, <a href="https://github.com/OpenVPN/easy-rsa/tree/master/doc" target="_blank"><span data-i18n="EasyRSA detailed Guide">EasyRSA detailed Guide</span></a>.</span>
     <!-- form start -->
     <form role="form" action="{{urlfor "DangerController.Post"}}" method="post">
       <div class="card-body">
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "copy_vars"}}" class="btn btn-primary" style="width: 125px;" title="Copy EasyRSA VARs" onclick="return confirm('Are you sure you want to Copy EasyRSA VARs?');">EasyRSA VARs</a>
-          &nbsp; <span>Copy EasyRSA vars from &quot;./openvpn/config/easy-rsa.vars to ./easy-rsa/pki/vars&quot;.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "copy_vars"}}" class="btn btn-primary" style="width: 125px;" title="Copy EasyRSA VARs" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Copy EasyRSA VARs?'));" data-i18n-title="Copy EasyRSA VARs"><span data-i18n="EasyRSA VARs">EasyRSA VARs</span></a>
+          &nbsp; <span><span data-i18n="Copy EasyRSA vars from &quot;./openvpn/config/easy-rsa.vars to ./easy-rsa/pki/vars&quot;.">Copy EasyRSA vars from &quot;./openvpn/config/easy-rsa.vars to ./easy-rsa/pki/vars&quot;.</span></span>
         </div>
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_crl"}}" class="btn btn-primary" style="width: 125px;" title="Generate TA key for openvpn" onclick="return confirm('Are you sure you want to generate CRL?');">Generate CRL</a>
-          &nbsp; <span>Generate a new Certificate Revocation List (CRL) by running &quot;easyrsa gen-crl&quot;.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_crl"}}" class="btn btn-primary" style="width: 125px;" title="Generate TA key for openvpn" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to generate CRL?'));" data-i18n-title="Generate TA key for openvpn"><span data-i18n="Generate CRL">Generate CRL</span></a>
+          &nbsp; <span><span data-i18n="Generate a new Certificate Revocation List (CRL) by running &quot;easyrsa gen-crl&quot;.">Generate a new Certificate Revocation List (CRL) by running &quot;easyrsa gen-crl&quot;.</span></span>
         </div>   
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "init-pki"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Initialize PKI" onclick="return confirm('Are you sure you want to Initialize PKI?');">Initialize PKI</a>
-          &nbsp; <span class="text-muted">Initialize PKI by running &quot;easyrsa init-pki&quot;.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "init-pki"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Initialize PKI" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Initialize PKI?'));" data-i18n-title="Initialize PKI"><span data-i18n="Initialize PKI">Initialize PKI</span></a>
+          &nbsp; <span class="text-muted"><span data-i18n="Initialize PKI by running &quot;easyrsa init-pki&quot;.">Initialize PKI by running &quot;easyrsa init-pki&quot;.</span></span>
         </div>   
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "build_ca"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Build CA" onclick="return confirm('Are you sure you want to build CA?');">Build CA</a>
-          &nbsp; <span class="text-muted">Build CA by running &quot;easyrsa build-ca nopass&quot;.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "build_ca"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Build CA" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to build CA?'));" data-i18n-title="Build CA"><span data-i18n="Build CA">Build CA</span></a>
+          &nbsp; <span class="text-muted"><span data-i18n="Build CA by running &quot;easyrsa build-ca nopass&quot;.">Build CA by running &quot;easyrsa build-ca nopass&quot;.</span></span>
         </div>     
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_req"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Build Server" onclick="return confirm('Are you sure you want to build Server?');">Build Server</a>
-          &nbsp; <span class="text-muted">Generate a new Server Certificate, Key, and Encryption Files by running &quot;easyrsa gen-req&sign-req server nopas&quot;.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_req"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Build Server" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to build Server?'));" data-i18n-title="Build Server"><span data-i18n="Build Server">Build Server</span></a>
+          &nbsp; <span class="text-muted"><span data-i18n="Generate a new Server Certificate, Key, and Encryption Files by running &quot;easyrsa gen-req&amp;sign-req server nopas&quot;.">Generate a new Server Certificate, Key, and Encryption Files by running &quot;easyrsa gen-req&sign-req server nopas&quot;.</span></span>
         </div>     
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_dh"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Generate Diffie-Hellman key" onclick="return confirm('Are you sure you want to generate DH key?');">Generate DH</a>
-          &nbsp; <span class="text-muted">Generate a new Diffie-Hellman key by running &quot;easyrsa gen-dh&quot;. This may take <b>up to 10 min</b>. Nothing is freezed, be patient.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_dh"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Generate Diffie-Hellman key" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to generate DH key?'));" data-i18n-title="Generate Diffie-Hellman key"><span data-i18n="Generate DH">Generate DH</span></a>
+          &nbsp; <span class="text-muted"><span data-i18n="Generate a new Diffie-Hellman key by running &quot;easyrsa gen-dh&quot;. This may take">Generate a new Diffie-Hellman key by running &quot;easyrsa gen-dh&quot;. This may take</span> <b><span data-i18n="up to 10 min">up to 10 min</span></b><span data-i18n=". Nothing is freezed, be patient.">. Nothing is freezed, be patient.</span></span>
         </div>    
 
         <div class="form-group">
-          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_ta"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Generate TA key for openvpn" onclick="return confirm('Are you sure you want to generate TA key?');">Generate TA</a>
-          &nbsp; <span class="text-muted">Generate a new openvpn TA key by running &quot;openvpn --genkey --secret ta.key&quot;.</span>
+          <a href="{{urlfor "DangerController.InitPKI" ":key" "gen_ta"}}" class="btn btn-warning btn-primary" style="width: 125px;" title="Generate TA key for openvpn" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to generate TA key?'));" data-i18n-title="Generate TA key for openvpn"><span data-i18n="Generate TA">Generate TA</span></a>
+          &nbsp; <span class="text-muted"><span data-i18n="Generate a new openvpn TA key by running &quot;openvpn --genkey --secret ta.key&quot;.">Generate a new openvpn TA key by running &quot;openvpn --genkey --secret ta.key&quot;.</span></span>
         </div>     
 
         <div class="card-body">
           <div class="form-group">
-            <a href="{{urlfor "DangerController.InitPKI" ":key" "init_all"}}" class="btn btn-danger btn-primary" style="width: 125px;" title="Initialize PKI" onclick="return confirm('Are you sure you want to Initialize ALL?');">INITIALIZE ALL</a>
-            &nbsp; <span class="text-muted">This button will execute all the steps above one by one - copy EasyRSA vars and create PKI, CA, Server, DH, TA and CRL.</span>
+            <a href="{{urlfor "DangerController.InitPKI" ":key" "init_all"}}" class="btn btn-danger btn-primary" style="width: 125px;" title="Initialize PKI" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to Initialize ALL?'));" data-i18n-title="Initialize PKI"><span data-i18n="INITIALIZE ALL">INITIALIZE ALL</span></a>
+            &nbsp; <span class="text-muted"><span data-i18n="This button will execute all the steps above one by one - copy EasyRSA vars and create PKI, CA, Server, DH, TA and CRL.">This button will execute all the steps above one by one - copy EasyRSA vars and create PKI, CA, Server, DH, TA and CRL.</span></span>
           </div>
         </div>
         {{ .xsrfdata }}

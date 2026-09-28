@@ -2,8 +2,10 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <script src="/static/js/i18n-zh.js"></script>
+  <script src="/static/js/i18n.js"></script>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>OpenVPN UI | Log in</title>
+  <title data-i18n="OpenVPN UI | Log in">OpenVPN UI | Log in</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <!-- Font Awesome 5.15.3 -->
@@ -28,17 +30,19 @@
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg"><small>Sign in to start your session</small></p>
+      <div class="text-right mb-3">{{template "common/language.html" .}}</div>
+      {{template "common/alert.html" .}}
+      <p class="login-box-msg"><small><span data-i18n="Sign in to start your session">Sign in to start your session</span></small></p>
 
       {{if .error}}
         <div class="alert alert-danger" role="alert">
-          {{.error}}
+          <span data-i18n-message>{{.error}}</span>
         </div>
       {{end}}
 
       <form action="{{urlfor "LoginController.Login"}}" method="post">
         <div class="input-group mb-3">
-          <input type="text" class="form-control" name="login" placeholder="Login">
+          <input type="text" class="form-control" name="login" placeholder="Login" data-i18n-placeholder="Login">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -47,7 +51,7 @@
         </div>
 
         <div class="input-group mb-3">
-          <input type="password" class="form-control" name="password" placeholder="Password">
+          <input type="password" class="form-control" name="password" placeholder="Password" data-i18n-placeholder="Password">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -61,15 +65,15 @@
         {{ .xsrfdata }}
         <div class="com-md-12">
             <button type="submit" class="btn btn-primary btn-block">
-            <img src="/static/img/openvpn-win.svg" alt="Sign In Icon" style="height: 23px; vertical-align: middle; filter: invert(1);"> &nbsp;Sign In</button>
+            <img src="/static/img/openvpn-win.svg" alt="" style="height: 23px; vertical-align: middle; filter: invert(1);"> <span data-i18n="Sign In">&nbsp;Sign In</span></button>
           </div>
         <!-- /.col -->
       </form>
       <br>
       <a href="{{urlfor "LoginController.GoogleLogin"}}" class="btn btn-block btn-danger">
-        <i class="fab fa-google"></i> &nbsp;Sign in with Google
+        <i class="fab fa-google"></i> <span data-i18n="Sign in with Google">&nbsp;Sign in with Google</span>
       </a>
-      <p class="login-box-msg"><small><a href="https://github.com/d3vilh/openvpn-ui?tab=readme-ov-file#authentication-with-google-apis-oauth-20" target="_blank">How to Sign In</a> with Google</small></p>
+      <p class="login-box-msg"><small><a href="https://github.com/d3vilh/openvpn-ui?tab=readme-ov-file#authentication-with-google-apis-oauth-20" target="_blank"><span data-i18n="How to Sign In">How to Sign In</span></a> <span data-i18n="with Google">with Google</span></small></p>
     </div>
     <!-- /.login-box-body -->
   </div>

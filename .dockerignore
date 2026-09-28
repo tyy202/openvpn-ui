@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+!.env.example
+data
+artifacts
+db
+openvpn
+easy-rsa
+*.zip
+*.tar.gz
+*.db
+*.db-*
+node_modules
+tests

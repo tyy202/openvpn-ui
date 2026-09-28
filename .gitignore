@@ -8,3 +8,10 @@ easy-rsa/pki/index.txt
 build/qrencode
 openvpn-ui.tar.gz
 qrencode
+
+# Local Docker credentials and persistent VPN keys/database
+.env
+data/
+db/
+openvpn-backup-*.tar.gz
+artifacts/

@@ -10,9 +10,9 @@
 <div class="card">
   <div class="card-header d-flex p-0">
     <ul class="nav nav-pills ml-left p-2">
-      <li class="nav-item"><a class="nav-link active" href="#tab_1" data-toggle="tab">Edit own Profile</a></li>
-      {{ if .Userinfo.IsAdmin }} <li class="nav-item"><a class="nav-link" href="#tab_2" data-toggle="tab">Creating new Profiles</a></li> {{ else }}{{ end }}
-      {{ if .Userinfo.IsAdmin }} <li class="nav-item"><a class="nav-link" href="#tab_3" data-toggle="tab">Managing Profiles</a></li> {{ else }}{{ end }}
+      <li class="nav-item"><a class="nav-link active" href="#tab_1" data-toggle="tab"><span data-i18n="Edit own Profile">Edit own Profile</span></a></li>
+      {{ if .Userinfo.IsAdmin }} <li class="nav-item"><a class="nav-link" href="#tab_2" data-toggle="tab"><span data-i18n="Creating new Profiles">Creating new Profiles</span></a></li> {{ else }}{{ end }}
+      {{ if .Userinfo.IsAdmin }} <li class="nav-item"><a class="nav-link" href="#tab_3" data-toggle="tab"><span data-i18n="Managing Profiles">Managing Profiles</span></a></li> {{ else }}{{ end }}
     </ul>
   </div>
   <div class="card-body">
@@ -20,13 +20,13 @@
 
       <!--TAB1-->
       <div class="tab-pane active" id="tab_1">
-        <h3>Editing {{ .Userinfo.Name }}'s profile</h3>{{ if .Userinfo.IsAdmin }}<span class="text-muted"> You are administrator. Wow!</span> {{ else }}{{ end }}
+        <h3><span data-i18n="Editing">Editing</span> {{ .Userinfo.Name }}<span data-i18n="&#x27;s profile">'s profile</span></h3>{{ if .Userinfo.IsAdmin }}<span class="text-muted"> <span data-i18n="You are administrator. Wow!">You are administrator. Wow!</span></span> {{ else }}{{ end }}
         {{template "common/alert.html" .}}
         <form id="ProfileEdit" role="form" action="{{urlfor "ProfileController.Post"}}" method="post">
           <div class="card-body">
 
             <div class="form-group">
-              <label class="col-form-label" for="login">Login</label>
+              <label class="col-form-label" for="login"><span data-i18n="Login">Login</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -36,45 +36,45 @@
             </div>
 
             <div class="form-group {{if field_error_exist .validation "Name" }}has-error{{end}}">
-              <label class="col-form-label" for="name">Name</label>
+              <label class="col-form-label" for="name"><span data-i18n="Name">Name</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
                 </div>
-                <input type="text" class="form-control" id="name" name="Name" placeholder="Enter name" value="{{ .profile.Name }}">
+                <input type="text" class="form-control" id="name" name="Name" placeholder="Enter name" value="{{ .profile.Name }}" data-i18n-placeholder="Enter name">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "Name" }}</span>
               </div>
             </div>
 
             <div class="form-group {{if field_error_exist .validation "Email" }}has-error{{end}}">
-              <label class="col-form-label" for="email">Email address</label>
+              <label class="col-form-label" for="email"><span data-i18n="Email address">Email address</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                 </div>
-                <input type="email" class="form-control" id="email" name="Email" placeholder="Enter email" value="{{ .profile.Email }}">
+                <input type="email" class="form-control" id="email" name="Email" placeholder="Enter email" value="{{ .profile.Email }}" data-i18n-placeholder="Enter email">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "Email" }}</span>
               </div>
             </div>
 
             <div class="form-group {{if field_error_exist .validation "Password" }}has-error{{end}}">
-              <label class="col-form-label" for="password">New Password</label>
+              <label class="col-form-label" for="password"><span data-i18n="New Password">New Password</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                 </div>
-                <input type="password" class="form-control" id="password" name="Password" placeholder="Enter password">
+                <input type="password" class="form-control" id="password" name="Password" placeholder="Enter password" data-i18n-placeholder="Enter password">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "Password" }}</span>
               </div>
             </div>
 
             <div class="form-group {{if field_error_exist .validation "Repassword" }}has-error{{end}}">
-              <label class="col-form-label" for="Repassword">Repeat password</label>
+              <label class="col-form-label" for="Repassword"><span data-i18n="Repeat password">Repeat password</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                 </div>
-                <input type="password" class="form-control" id="Repassword" name="Repassword" placeholder="Repeat password">
+                <input type="password" class="form-control" id="Repassword" name="Repassword" placeholder="Repeat password" data-i18n-placeholder="Repeat password">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "Repassword" }}</span>
               </div>
             </div>
@@ -83,7 +83,7 @@
           </div>
 
           <div class="modal-footer justify-content-between">
-            <button type="submit" class="btn btn-primary" form="ProfileEdit" style="width: 135px;">Save Profile</button>
+            <button type="submit" class="btn btn-primary" form="ProfileEdit" style="width: 135px;"><span data-i18n="Save Profile">Save Profile</span></button>
           </div>
         </form>
       </div>
@@ -91,73 +91,73 @@
 
       <!--TAB2-->
       <div class="tab-pane" id="tab_2">
-        <h3>Create new profile</h3>
+        <h3><span data-i18n="Create new profile">Create new profile</span></h3>
         {{template "common/alert.html" .}}
         <form id="ProfileCreate" role="form" action="{{urlfor "ProfileController.Create"}}" method="post">
           <div class="card-body">
 
             <div class="form-group">
-              <label class="col-form-label" for="newlogin">Login</label>
+              <label class="col-form-label" for="newlogin"><span data-i18n="Login">Login</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-user"></i></span>
                 </div>
-                <input type="text" class="form-control" id="newlogin" name="NewLogin" placeholder="Enter login">
+                <input type="text" class="form-control" id="newlogin" name="NewLogin" placeholder="Enter login" data-i18n-placeholder="Enter login">
               </div>
             </div>
 
             <div class="custom-control custom-checkbox form-group {{if field_error_exist .validation "IsAdmin" }}has-error{{end}}">
               <input class="custom-control-input custom-control-input-danger" type="checkbox" id="isadmin" name="IsAdmin">
-              <label for="isadmin" class="custom-control-label" style="color: #dd4b39;">This user is Admin.</label> <span class="text-muted"> 
-                &nbsp; Not Admins can maintain Certificates, view Logs and Connections. Server configuration and User management is not accessible.</span>
+              <label for="isadmin" class="custom-control-label" style="color: #dd4b39;"><span data-i18n="This user is Admin.">This user is Admin.</span></label> <span class="text-muted">
+                <span data-i18n="Not Admins can maintain Certificates, view Logs and Connections. Server configuration and User management is not accessible.">&nbsp; Not Admins can maintain Certificates, view Logs and Connections. Server configuration and User management is not accessible.</span></span>
             </div>
 
             <div class="form-group {{if field_error_exist .validation "NewName" }}has-error{{end}}">
-              <label class="col-form-label" for="newname">Name</label>
+              <label class="col-form-label" for="newname"><span data-i18n="Name">Name</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
                 </div>
-                <input type="text" class="form-control" id="newname" name="NewName" placeholder="Enter name">
+                <input type="text" class="form-control" id="newname" name="NewName" placeholder="Enter name" data-i18n-placeholder="Enter name">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "NewName" }}</span>
               </div>
             </div>
 
             <div class="form-group {{if field_error_exist .validation "NewEmail" }}has-error{{end}}">
-              <label class="col-form-label" for="email">Email address</label>
+              <label class="col-form-label" for="email"><span data-i18n="Email address">Email address</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                 </div>
-                <input type="email" class="form-control" id="newemail" name="NewEmail" placeholder="Enter email">
+                <input type="email" class="form-control" id="newemail" name="NewEmail" placeholder="Enter email" data-i18n-placeholder="Enter email">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "NewEmail" }}</span>
               </div>
             </div>
 
             <div class="form-group {{if field_error_exist .validation "NewPassword" }}has-error{{end}}">
-              <label class="col-form-label" for="newpassword">Enter user password</label>
+              <label class="col-form-label" for="newpassword"><span data-i18n="Enter user password">Enter user password</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                 </div>
-                <input type="password" class="form-control" id="newpassword" name="NewPassword" placeholder="Enter new user password">
+                <input type="password" class="form-control" id="newpassword" name="NewPassword" placeholder="Enter new user password" data-i18n-placeholder="Enter new user password">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "NewPassword" }}</span>
               </div>
             </div>
             <div class="form-group {{if field_error_exist .validation "NewRepassword" }}has-error{{end}}">
-              <label class="col-form-label" for="newrepassword">Repeat user password</label>
+              <label class="col-form-label" for="newrepassword"><span data-i18n="Repeat user password">Repeat user password</span></label>
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                 </div>
-                <input type="password" class="form-control" id="newrepassword" name="NewRepassword" placeholder="Repeat new user password">
+                <input type="password" class="form-control" id="newrepassword" name="NewRepassword" placeholder="Repeat new user password" data-i18n-placeholder="Repeat new user password">
                 <span class="text-muted"> {{template "common/fvalid.html" field_error_message .validation "NewRepassword" }}</span>
               </div>
             </div>
           </div>
 
           <div class="modal-footer justify-content-between">
-            <button type="submit" class="btn btn-primary" style="width: 135px;">Create Profile</button>
+            <button type="submit" class="btn btn-primary" style="width: 135px;"><span data-i18n="Create Profile">Create Profile</span></button>
           </div>
 
         </form>
@@ -166,21 +166,21 @@
 
       <!--TAB3-->
       <div class="tab-pane" id="tab_3">
-        <h3>Profiles management</h3>
+        <h3><span data-i18n="Profiles management">Profiles management</span></h3>
         {{template "common/alert.html" .}}
         <div class="table-responsive">
           <table class="table no-margin">
             <thead>
             <tr>
-              <th>Id</th>
-              <th>Admin</th>
-              <th>Login</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Created</th>
-              <th>Last Login</th>
-              <th>Updated</th>
-              <th>Action</th>
+              <th><span data-i18n="Id">Id</span></th>
+              <th><span data-i18n="Admin">Admin</span></th>
+              <th><span data-i18n="Login">Login</span></th>
+              <th><span data-i18n="Name">Name</span></th>
+              <th><span data-i18n="Email">Email</span></th>
+              <th><span data-i18n="Created">Created</span></th>
+              <th><span data-i18n="Last Login">Last Login</span></th>
+              <th><span data-i18n="Updated">Updated</span></th>
+              <th><span data-i18n="Action">Action</span></th>
             </tr>
             </thead>
             <tbody>
@@ -220,7 +220,7 @@
                     {{ $lastLoginTime := dateformat .Lastlogintime "2006-01-02 15:04" }}
                     {{if eq $lastLoginTime "0001-01-01 00:00"}}
                     <td>
-                     Not used
+                     <span data-i18n="Not used">Not used</span>
                     </td>
                     {{else}}
                     <td>
@@ -233,15 +233,15 @@
                     </td>
                     <td>
                       {{ if eq .Id 1 }}
-                      <a class="btn btn-default btn-xs" disabled>Update</a>
+                      <a class="btn btn-default btn-xs" disabled><span data-i18n="Update">Update</span></a>
                       {{else}}
-                      <input type="submit" class="btn btn-primary btn-xs" title="Update User" style="font-size: 70%;" value="Update">
+                      <button type="submit" class="btn btn-primary btn-xs" title="Update User" style="font-size: 70%;" value="Update" data-i18n-title="Update User"><span data-i18n="Update">Update</span></button>
                       {{end}}
                       {{ if eq .Id 1 }}
-                      <a class="btn btn-default btn-xs" disabled>Delete</a>
+                      <a class="btn btn-default btn-xs" disabled><span data-i18n="Delete">Delete</span></a>
                       {{else}}
-                      <a href="{{urlfor "ProfileController.DeleteUser" ":key" .Id}}" class="btn btn-danger btn-xs" title="Burn" style="font-size: 70%" onclick="return confirm('Are you sure you want to delete this user?');">
-                        Delete
+                      <a href="{{urlfor "ProfileController.DeleteUser" ":key" .Id}}" class="btn btn-danger btn-xs" title="Burn" style="font-size: 70%" onclick="return confirm(OpenVPNUILanguage.t('Are you sure you want to delete this user?'));" data-i18n-title="Burn">
+                        <span data-i18n="Delete">Delete</span>
                       </a>
                       {{end}}
                     </td>

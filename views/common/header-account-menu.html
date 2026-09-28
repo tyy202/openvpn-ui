@@ -13,17 +13,17 @@
       <img src="/static/img/person.png" class="img-circle" alt="User Image">
       <p>
         {{ .Userinfo.Name}}
-        <small>Created on {{ .Userinfo.Created.Format "Jan 02, 2006" }}</small>
+        <small><span data-i18n="Created on">Created on</span> {{ .Userinfo.Created.Format "Jan 02, 2006" }}</small>
       </p>
     </li>
 
     <!-- Menu Footer-->
     <li class="user-footer">
       <div class="pull-left">
-        <a href="{{urlfor "ProfileController.Get"}}" class="btn btn-default btn-flat">Profile Configuration</a>
+        <a href="{{urlfor "ProfileController.Get"}}" class="btn btn-default btn-flat"><span data-i18n="Profile Configuration">Profile Configuration</span></a>
       </div>
       <div class="pull-right">
-        <a href="{{urlfor "LoginController.Logout"}}" class="btn btn-default btn-flat">Sign out</a>
+        <a href="{{urlfor "LoginController.Logout"}}" class="btn btn-default btn-flat"><span data-i18n="Sign out">Sign out</span></a>
       </div>
     </li>
   </ul>

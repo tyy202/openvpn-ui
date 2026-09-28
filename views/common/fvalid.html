@@ -1,5 +1,5 @@
 {{if .}}
   {{ range $key, $value := . }}
-    <i class="fa fa-times-circle-o"></i> {{ $key }}: {{ $value }}<br/>
+    <i class="fa fa-times-circle-o"></i> <span data-i18n-message>{{ $key }}</span>: <span data-i18n-message>{{ $value }}</span><br/>
   {{ end }}
 {{end}}

@@ -2,10 +2,10 @@
 <section class="content-header">
   <h1>
     {{ if .breadcrumbs.Title }}
-      {{ .breadcrumbs.Title }}
+      <span data-i18n-message>{{ .breadcrumbs.Title }}</span>
     {{ end }}
     {{ if .breadcrumbs.Subtitle }}
-      <small>{{ .breadcrumbs.Subtitle }}</small>
+      <small data-i18n-message>{{ .breadcrumbs.Subtitle }}</small>
     {{ end }}
   </h1>
   <!--
