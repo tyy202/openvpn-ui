@@ -136,7 +136,7 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 			UserPassVerify:           "",
 			Device:                   "tun",
 			Port:                     1194,
-			Proto:                    "udp",
+			Proto:                    "tcp-server",
 			OVConfigTopology:         "subnet",
 			Keepalive:                "10 120",
 			MaxClients:               100,
@@ -176,6 +176,11 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 		if port, parseErr := strconv.Atoi(deployment.Port); parseErr == nil {
 			c.Port = port
 		}
+		if deployment.Protocol == "tcp" {
+			c.Proto = "tcp-server"
+		} else {
+			c.Proto = "udp"
+		}
 		c.Route = ""
 		c.RedirectGW = ""
 		c.DNSServer1 = ""
@@ -188,9 +193,13 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 		} else {
 			if deployment.Host != "" {
 				desiredPort, parseErr := strconv.Atoi(deployment.Port)
-				if parseErr == nil && c.Port != desiredPort {
-					c.Port = desiredPort
-					if _, updateErr := o.Update(&c, "Port"); updateErr != nil {
+				desiredProtocol := "udp"
+				if deployment.Protocol == "tcp" {
+					desiredProtocol = "tcp-server"
+				}
+				if parseErr == nil && (c.Port != desiredPort || c.Proto != desiredProtocol) {
+					c.Port, c.Proto = desiredPort, desiredProtocol
+					if _, updateErr := o.Update(&c, "Port", "Proto"); updateErr != nil {
 						logs.Error(updateErr)
 						return
 					}
@@ -222,7 +231,7 @@ func CreateDefaultOVClientConfig(configDir string, ovConfigPath string, address 
 			FuncMode:          0, // 0 = standard authentication (cert, cert + password), 1 = 2FA authentication (cert + OTP)
 			Device:            "tun",
 			Port:              1194,
-			Proto:             "udp",
+			Proto:             "tcp-client",
 			ServerAddress:     "127.0.0.1",
 			OpenVpnServerPort: "1194",
 			ResolveRetry:      "resolv-retry infinite",
@@ -247,6 +256,11 @@ func CreateDefaultOVClientConfig(configDir string, ovConfigPath string, address 
 	if deployment.Host != "" {
 		c.ServerAddress = deployment.Host
 		c.OpenVpnServerPort = deployment.Port
+		if deployment.Protocol == "tcp" {
+			c.Proto = "tcp-client"
+		} else {
+			c.Proto = "udp"
+		}
 		c.RedirectGateway = ""
 	}
 	o := orm.NewOrm()
@@ -254,10 +268,25 @@ func CreateDefaultOVClientConfig(configDir string, ovConfigPath string, address 
 		if created {
 			logs.Info("New settings profile created")
 		} else {
+			if deployment.Host != "" {
+				desiredProtocol := "udp"
+				if deployment.Protocol == "tcp" {
+					desiredProtocol = "tcp-client"
+				}
+				c.ServerAddress = deployment.Host
+				c.OpenVpnServerPort = deployment.Port
+				c.Proto = desiredProtocol
+				c.RedirectGateway = ""
+				if _, updateErr := o.Update(&c, "ServerAddress", "OpenVpnServerPort", "Proto", "RedirectGateway"); updateErr != nil {
+					logs.Error(updateErr)
+					return
+				}
+			}
 			logs.Debug(c)
 		}
 		clientConfig := filepath.Join(ovConfigPath, "config/client.conf")
-		if _, err = os.Stat(clientConfig); os.IsNotExist(err) {
+		_, statErr := os.Stat(clientConfig)
+		if os.IsNotExist(statErr) || deployment.Host != "" {
 			if err = clientconfig.SaveToFile(filepath.Join(configDir, "openvpn-client-config.tpl"), c.Config, clientConfig); err != nil {
 				logs.Error(err)
 			}

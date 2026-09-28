@@ -12,7 +12,7 @@ func TestDeploymentDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.Host != "vpn.example.com" || c.Port != "21194" || c.Server != "server 10.8.0.0 255.255.255.0" || c.PushRoute != `push "route 192.168.18.0 255.255.255.0"` {
+	if c.Host != "vpn.example.com" || c.Port != "21194" || c.Protocol != "tcp" || c.Server != "server 10.8.0.0 255.255.255.0" || c.PushRoute != `push "route 192.168.18.0 255.255.255.0"` {
 		t.Fatalf("unexpected config: %+v", c)
 	}
 }
@@ -22,6 +22,7 @@ func TestInvalidDeploymentSettings(t *testing.T) {
 		{"OPENVPN_PUBLIC_HOST", "https://vpn.example.com"},
 		{"OPENVPN_PUBLIC_HOST", "vpn.example.com\npush bad"},
 		{"OPENVPN_PUBLIC_PORT", "65536"}, {"OPENVPN_PUBLIC_PORT", "0"},
+		{"OPENVPN_PROTOCOL", "tcp-server"},
 		{"OPENVPN_VPN_CIDR", "10.8.0.1/24"}, {"OPENVPN_VPN_CIDR", "10.8.0.0/16"},
 		{"OPENVPN_LAN_CIDR", "::/64"}, {"OPENVPN_LAN_CIDR", "10.8.0.0/16"},
 	} {

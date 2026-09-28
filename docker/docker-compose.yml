@@ -1,7 +1,7 @@
 name: openvpn
 
 x-openvpn-image: &openvpn-image
-  image: 192.168.18.100:5001/openvpn-ui:v0.2
+  image: 192.168.18.100:5000/openvpn-ui:v0.3
   pull_policy: always
 
 x-openvpn-volumes: &openvpn-volumes
@@ -16,6 +16,7 @@ services:
     environment:
       OPENVPN_PUBLIC_HOST: ${OPENVPN_PUBLIC_HOST:?请在 .env 中设置 OPENVPN_PUBLIC_HOST}
       OPENVPN_PUBLIC_PORT: ${OPENVPN_PUBLIC_PORT:-1194}
+      OPENVPN_PROTOCOL: ${OPENVPN_PROTOCOL:-tcp}
       OPENVPN_VPN_CIDR: ${OPENVPN_VPN_CIDR:-10.8.0.0/24}
       OPENVPN_LAN_CIDR: ${OPENVPN_LAN_CIDR:-192.168.18.0/24}
       OPENVPN_ADMIN_USERNAME: ${OPENVPN_ADMIN_USERNAME:-admin}
@@ -56,7 +57,6 @@ services:
       OPENVPN_MANAGEMENT_ADDRESS: 127.0.0.1:2080
       UI_BIND_IP: ${UI_BIND_IP:-0.0.0.0}
       UI_PORT: ${UI_PORT:-8080}
-    network_mode: host
     cap_add:
       - NET_ADMIN
     volumes:
@@ -64,6 +64,7 @@ services:
       - ./data/db:/opt/openvpn-ui/db
       - ./data/log:/var/log/openvpn
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    network_mode: host
     depends_on:
       openvpn:
         condition: service_healthy

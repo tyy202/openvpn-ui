@@ -16,7 +16,8 @@ nano .env
 | 配置项 | 填写说明 |
 | --- | --- |
 | `OPENVPN_PUBLIC_HOST` | 客户端能访问的 Linux IP 或域名；必须替换示例，不带协议或端口 |
-| `OPENVPN_PUBLIC_PORT` | OpenVPN 监听的 UDP 端口，默认 `1194` |
+| `OPENVPN_PUBLIC_PORT` | OpenVPN 监听端口，默认 `1194` |
+| `OPENVPN_PROTOCOL` | 默认 `tcp`；也可以设置为 `udp` |
 | `OPENVPN_VPN_CIDR` | 分配给 VPN 客户端的地址池，默认 `10.8.0.0/24`；当前试用限定 `/24` |
 | `OPENVPN_LAN_CIDR` | 首次初始化使用的示例内网；正式权限在 Web 后台维护，可配置多个 IPv4 网段 |
 | `OPENVPN_ADMIN_USERNAME` | 管理网页登录名，默认 `admin` |
@@ -43,7 +44,7 @@ docker compose ps -a
 docker compose logs --tail=100 openvpn openvpn-ui
 ```
 
-`init` 正常状态是 `Exited (0)`，其余两个服务应为 `Up` / `healthy`。主机需允许所选 UDP 端口；主机在路由器后时，还需将该 UDP 端口转发至 Linux。云服务器需设置对应安全组。管理端口和 OpenVPN 管理协议端口 `2080` 无需向公网开放。
+`init` 正常状态是 `Exited (0)`，其余两个服务应为 `Up` / `healthy`。主机需允许所选 OpenVPN 端口；路由器、内网穿透和云安全组必须使用与 `OPENVPN_PROTOCOL` 相同的协议。管理协议端口 `2080` 无需向公网开放。
 
 默认通过 SSH 隧道打开网页：在自己的电脑运行以下命令，保持 SSH 连接，然后访问 `http://127.0.0.1:8080`。
 

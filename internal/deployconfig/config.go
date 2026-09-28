@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	Host, Port, Server, PushRoute string
+	Host, Port, Protocol, Server, PushRoute string
 }
 
 var hostname = regexp.MustCompile(`^[a-zA-Z0-9](?:[a-zA-Z0-9.-]*[a-zA-Z0-9])?$`)
@@ -31,6 +31,13 @@ func Read(getenv func(string) string) (Config, error) {
 	port, err := strconv.Atoi(c.Port)
 	if err != nil || port < 1 || port > 65535 {
 		return c, fmt.Errorf("OPENVPN_PUBLIC_PORT must be between 1 and 65535")
+	}
+	c.Protocol = getenv("OPENVPN_PROTOCOL")
+	if c.Protocol == "" {
+		c.Protocol = "tcp"
+	}
+	if c.Protocol != "tcp" && c.Protocol != "udp" {
+		return c, fmt.Errorf("OPENVPN_PROTOCOL must be tcp or udp")
 	}
 	vpn := getenv("OPENVPN_VPN_CIDR")
 	if vpn == "" {

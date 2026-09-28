@@ -75,7 +75,7 @@ docker compose logs --tail=100 openvpn openvpn-ui
 
 完整的部署、端口转发、备份和排错说明请阅读：[Linux Docker 部署说明](docs/docker-deployment.zh-CN.md)。
 
-如果使用仓库里的 `docker/` 目录，则 Compose 会直接拉取私有仓库镜像 `192.168.18.100:5001/openvpn-ui:v0.2`：
+如果使用仓库里的 `docker/` 目录，则 Compose 会直接拉取私有仓库镜像 `192.168.18.100:5000/openvpn-ui:v0.3`：
 
 ```bash
 cd docker
@@ -92,7 +92,8 @@ docker compose up -d
 | 配置项 | 默认值 | 说明 |
 | --- | --- | --- |
 | `OPENVPN_PUBLIC_HOST` | `vpn.example.com` | 客户端能访问的服务器 IP 或域名，必须修改；不要填写协议或端口 |
-| `OPENVPN_PUBLIC_PORT` | `1194` | 对外提供服务的 UDP 端口 |
+| `OPENVPN_PUBLIC_PORT` | `1194` | OpenVPN 对外监听端口 |
+| `OPENVPN_PROTOCOL` | `tcp` | 传输协议；默认 TCP，也可以设置为 `udp` |
 | `OPENVPN_VPN_CIDR` | `10.8.0.0/24` | 分配给 VPN 客户端的地址池；当前固定 IP 功能要求使用 `/24` |
 | `OPENVPN_LAN_CIDR` | `192.168.18.0/24` | 首次初始化写入的示例目标内网；后续在 Web 后台维护网络资源 |
 | `OPENVPN_ADMIN_USERNAME` | `admin` | 管理网页的初始管理员账号 |
@@ -150,12 +151,12 @@ http://Linux内网IP:8080
 
 | 端口 | 协议 | 用途 |
 | --- | --- | --- |
-| `${OPENVPN_PUBLIC_PORT}` | UDP | OpenVPN 客户端连接 |
+| `${OPENVPN_PUBLIC_PORT}` | TCP（默认） | OpenVPN 客户端连接，协议由 `OPENVPN_PROTOCOL` 决定 |
 | `${UI_PORT}` | TCP | 管理网页；默认只绑定到 `127.0.0.1` |
 
 OpenVPN 管理接口只由管理程序通过宿主机回环地址 `127.0.0.1:2080` 使用。
 
-如果服务器位于路由器后，需要把所选 UDP 端口转发到 Linux 主机；云服务器还需要在安全组中允许这个 UDP 端口。管理网页不建议直接暴露到公网。
+如果服务器位于路由器或内网穿透服务后，需要按 `OPENVPN_PROTOCOL` 转发对应端口；云服务器安全组也要允许相同协议和端口。管理网页不建议直接暴露到公网。
 
 OpenVPN 容器启动时会：
 
