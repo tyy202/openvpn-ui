@@ -76,13 +76,23 @@ docker compose logs --tail=100 openvpn openvpn-ui
 
 完整的部署、端口转发、备份和排错说明请阅读：[Linux Docker 部署说明](docs/docker-deployment.zh-CN.md)。
 
-如果使用仓库里的 `docker/` 目录，则 Compose 会直接拉取私有仓库镜像 `192.168.18.100:5000/openvpn-ui:v0.3`：
+如果使用仓库里的 `docker/` 目录，则 Compose 默认拉取 `www.durian.fun:32433/openvpn-ui:v0.4`。也可以在 `docker/.env` 中通过 `OPENVPN_IMAGE` 切换仓库或版本：
 
 ```bash
 cd docker
 docker compose pull
 docker compose up -d
 ```
+
+发布新镜像时需要使用仓库根目录作为 Docker 构建上下文，因为镜像同时编译 Go 后端和 `web/` 中的 React 前端：
+
+```bash
+docker buildx build --platform linux/amd64 \
+  -t www.durian.fun:32433/openvpn-ui:v0.4 \
+  --push .
+```
+
+部署机器只需要 `docker/docker-compose.yml` 和按 `docker/.env.example` 创建的 `docker/.env`；运行产生的 `docker/data/` 必须保留，但不要打包或上传到镜像仓库。
 
 > 使用上游预编译镜像 `d3vilh/openvpn-ui:latest` 不会包含本分支的中文界面。要使用当前修改，请执行 `docker compose up -d --build` 从源码构建。
 
