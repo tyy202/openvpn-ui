@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
@@ -37,6 +39,10 @@ func InitDB() {
 		new(OVConfig),
 		new(OVClientConfig),
 		new(EasyRSAConfig),
+		new(VPNGroup),
+		new(NetworkResource),
+		new(VPNUser),
+		new(GroupNetwork),
 	)
 
 	err = orm.RunSyncdb("default", false, true)
@@ -74,6 +80,9 @@ func CreateDefaultSettings() (*Settings, error) {
 	if err != nil {
 		return nil, err
 	}
+	if value := strings.TrimSpace(os.Getenv("OPENVPN_MANAGEMENT_ADDRESS")); value != "" {
+		miAddress = value
+	}
 	miNetwork, err := web.AppConfig.String("OpenVpnManagementNetwork")
 	if err != nil {
 		return nil, err
@@ -103,6 +112,12 @@ func CreateDefaultSettings() (*Settings, error) {
 		if created {
 			logs.Info("New settings profile created")
 		} else {
+			if value := strings.TrimSpace(os.Getenv("OPENVPN_MANAGEMENT_ADDRESS")); value != "" && s.MIAddress != value {
+				s.MIAddress = value
+				if _, updateErr := o.Update(&s, "MIAddress"); updateErr != nil {
+					return nil, updateErr
+				}
+			}
 			logs.Debug(s)
 		}
 		return &s, nil
@@ -158,6 +173,9 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 	if deployment.Host != "" {
 		c.Server = deployment.Server
 		c.PushRoute = deployment.PushRoute
+		if port, parseErr := strconv.Atoi(deployment.Port); parseErr == nil {
+			c.Port = port
+		}
 		c.Route = ""
 		c.RedirectGW = ""
 		c.DNSServer1 = ""
@@ -168,10 +186,26 @@ func CreateDefaultOVConfig(configDir string, ovConfigPath string, address string
 		if created {
 			logs.Info("New settings profile created")
 		} else {
+			if deployment.Host != "" {
+				desiredPort, parseErr := strconv.Atoi(deployment.Port)
+				if parseErr == nil && c.Port != desiredPort {
+					c.Port = desiredPort
+					if _, updateErr := o.Update(&c, "Port"); updateErr != nil {
+						logs.Error(updateErr)
+						return
+					}
+				}
+				if parseErr != nil {
+					logs.Error(parseErr)
+					return
+				}
+			}
 			logs.Debug(c)
 		}
 		serverConfig := filepath.Join(ovConfigPath, "server.conf")
-		if _, err = os.Stat(serverConfig); os.IsNotExist(err) {
+		_, statErr := os.Stat(serverConfig)
+		shouldSave := os.IsNotExist(statErr) || deployment.Host != ""
+		if shouldSave {
 			if err = config.SaveToFile(filepath.Join(configDir, "openvpn-server-config.tpl"), c.Config, serverConfig); err != nil {
 				logs.Error(err)
 			}

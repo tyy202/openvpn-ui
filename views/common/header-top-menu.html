@@ -27,6 +27,10 @@
         <a href="{{urlfor "EasyRSAConfigController.Get"}}" class="dropdown-item"><span data-i18n="EasyRSA vars">EasyRSA vars</span></a>
       </li>
 
+      <li {{if compare .RouterPattern "/access"}}class="dropdown-item"{{end}}>
+        <a href="{{urlfor "AccessController.Get"}}" class="dropdown-item"><span data-i18n="VPN Access Control">VPN Access Control</span></a>
+      </li>
+
       <li {{if compare .RouterPattern "/dangerzone"}}class="dropdown-item"{{end}}>
         <a href="{{urlfor "DangerController.Get"}}" class="dropdown-item"><span data-i18n="Maintenance">Maintenance</span></a>
       </li>

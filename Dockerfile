@@ -5,7 +5,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 COPY vendor ./vendor
 COPY . .
-RUN go test -mod=vendor ./internal/deployconfig \
+RUN go test -mod=vendor ./internal/deployconfig ./internal/accesspolicy \
  && CGO_ENABLED=1 go build -mod=vendor -trimpath -o /out/openvpn-ui .
 
 FROM alpine:3.23
@@ -22,7 +22,7 @@ COPY build/assets/app.conf ./conf/app.conf
 COPY build/assets/ /opt/scripts/
 COPY deploy/ /opt/deploy/
 # Windows checkouts may contain CRLF. Normalize scripts in the image.
-RUN sed -i 's/\r$//' /opt/scripts/*.sh /opt/deploy/*.sh \
+RUN sed -i 's/\r$//' /opt/scripts/*.sh /opt/deploy/*.sh /opt/openvpn-ui/conf/*.tpl \
  && chmod +x /opt/scripts/*.sh /opt/deploy/*.sh \
  && cp /opt/deploy/qrencode.sh /opt/scripts/qrencode \
  && mkdir -p db \

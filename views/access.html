@@ -1,0 +1,49 @@
+{{ template "layout/base.html" . }}
+{{define "head"}}<title data-i18n="VPN Access Control">VPN Access Control</title>{{end}}
+{{define "body"}}
+
+<div class="container-fluid">
+  <div class="row mb-3">
+    <div class="col-12">
+      <h1 data-i18n="VPN Access Control">VPN Access Control</h1>
+      <p class="text-muted"><span data-i18n="VPN pool">VPN pool</span>: <code>{{.VPNPool}}</code>. <span data-i18n="Access is denied unless an enabled group explicitly allows an enabled network.">Access is denied unless an enabled group explicitly allows an enabled network.</span></p>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header"><strong data-i18n="VPN Users">VPN Users</strong></div>
+    <div class="card-body">
+      <form method="post" class="form-row align-items-end mb-4">
+        {{.xsrfdata}}<input type="hidden" name="action" value="create-user">
+        <div class="form-group col-md-3"><label data-i18n="Display name">Display name</label><input class="form-control" name="Name" required></div>
+        <div class="form-group col-md-3"><label data-i18n="Certificate CN">Certificate CN</label><input class="form-control" name="CertificateCN" pattern="[A-Za-z0-9_.@-]+" required></div>
+        <div class="form-group col-md-2"><label data-i18n="Fixed VPN IP">Fixed VPN IP</label><input class="form-control" name="StaticIP" placeholder="auto"></div>
+        <div class="form-group col-md-2"><label data-i18n="VPN Group">VPN Group</label><select class="form-control" name="GroupId" required><option value="" data-i18n="Select group">Select group</option>{{range .Groups}}<option value="{{.Id}}">{{.Name}}</option>{{end}}</select></div>
+        <div class="form-group col-md-2"><button class="btn btn-primary btn-block" data-i18n="Create user and certificate">Create user and certificate</button></div>
+      </form>
+      <div class="table-responsive"><table class="table table-sm table-striped">
+        <thead><tr><th data-i18n="User">User</th><th data-i18n="Certificate CN">Certificate CN</th><th data-i18n="Fixed VPN IP">Fixed VPN IP</th><th data-i18n="VPN Group">VPN Group</th><th data-i18n="Enabled">Enabled</th><th data-i18n="Actions">Actions</th></tr></thead>
+        <tbody>{{range .VPNUsers}}{{$user := .}}<tr><td><form id="user-{{.Id}}" method="post">{{$.xsrfdata}}<input type="hidden" name="Id" value="{{.Id}}"></form><input form="user-{{.Id}}" class="form-control form-control-sm" name="Name" value="{{.Name}}"></td><td><code>{{.CertificateCN}}</code></td><td><input form="user-{{.Id}}" class="form-control form-control-sm" name="StaticIP" value="{{.StaticIP}}"></td><td><select form="user-{{.Id}}" class="form-control form-control-sm" name="GroupId">{{range $.Groups}}<option value="{{.Id}}" {{if eq .Id $user.Group.Id}}selected{{end}}>{{.Name}}</option>{{end}}</select></td><td><input form="user-{{.Id}}" type="checkbox" name="Enabled" {{if .Enabled}}checked{{end}}></td><td class="text-nowrap"><button form="user-{{.Id}}" class="btn btn-sm btn-primary" name="action" value="update-user" data-i18n="Save">Save</button> <a class="btn btn-sm btn-success" href="/certificates/{{.CertificateCN}}" data-i18n="Download OVPN">Download OVPN</a> <button form="user-{{.Id}}" class="btn btn-sm btn-warning" name="action" value="renew-user" data-i18n="Renew and revoke old certificate">Renew and revoke old certificate</button> <button form="user-{{.Id}}" class="btn btn-sm btn-danger" name="action" value="delete-user" data-confirm="Delete this VPN user and revoke its certificate?" data-i18n="Delete">Delete</button></td></tr>{{else}}<tr><td colspan="6" class="text-muted" data-i18n="No VPN users yet.">No VPN users yet.</td></tr>{{end}}</tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header"><strong data-i18n="VPN Groups">VPN Groups</strong></div>
+    <div class="card-body">
+      <form method="post" class="form-row align-items-end mb-4">{{.xsrfdata}}<input type="hidden" name="action" value="create-group"><div class="form-group col-md-4"><label data-i18n="Group name">Group name</label><input class="form-control" name="Name" required></div><div class="form-group col-md-6"><label data-i18n="Description">Description</label><input class="form-control" name="Description"></div><div class="form-group col-md-2"><button class="btn btn-primary btn-block" data-i18n="Create group">Create group</button></div></form>
+      {{range .Groups}}{{$group := .}}<form method="post" class="border rounded p-3 mb-3">{{$.xsrfdata}}<input type="hidden" name="Id" value="{{.Id}}"><div class="form-row"><div class="form-group col-md-3"><label data-i18n="Group name">Group name</label><input class="form-control" name="Name" value="{{.Name}}"></div><div class="form-group col-md-5"><label data-i18n="Description">Description</label><input class="form-control" name="Description" value="{{.Description}}"></div><div class="form-group col-md-2"><label class="d-block" data-i18n="Enabled">Enabled</label><input type="checkbox" name="Enabled" {{if .Enabled}}checked{{end}}></div><div class="form-group col-md-2 text-right"><button class="btn btn-primary" name="action" value="update-group" data-i18n="Save">Save</button> <button class="btn btn-danger" name="action" value="delete-group" data-confirm="Delete this group?" data-i18n="Delete">Delete</button></div></div><div><label data-i18n="Allowed networks">Allowed networks</label><div>{{range $.Networks}}<label class="mr-4"><input type="checkbox" name="NetworkIDs" value="{{.Id}}" {{if index (index $.Assignments $group.Id) .Id}}checked{{end}}> {{.Name}} <code>{{.CIDR}}</code>{{if not .Enabled}} <span class="badge badge-secondary" data-i18n="disabled">disabled</span>{{end}}</label>{{else}}<span class="text-muted" data-i18n="Add or discover a network first.">Add or discover a network first.</span>{{end}}</div></div></form>{{else}}<p class="text-muted" data-i18n="Create a group before adding VPN users.">Create a group before adding VPN users.</p>{{end}}
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between"><strong data-i18n="Network Resources">Network Resources</strong><form method="post">{{.xsrfdata}}<button class="btn btn-sm btn-info" name="action" value="discover-networks" data-i18n="Discover host networks">Discover host networks</button></form></div>
+    <div class="card-body">
+      <form method="post" class="form-row align-items-end mb-4">{{.xsrfdata}}<input type="hidden" name="action" value="create-network"><div class="form-group col-md-5"><label data-i18n="Network name">Network name</label><input class="form-control" name="Name"></div><div class="form-group col-md-5"><label data-i18n="IPv4 CIDR">IPv4 CIDR</label><input class="form-control" name="CIDR" placeholder="192.168.18.0/24" required></div><div class="form-group col-md-2"><button class="btn btn-primary btn-block" data-i18n="Add network">Add network</button></div></form>
+      <div class="table-responsive"><table class="table table-sm"><thead><tr><th data-i18n="Network name">Network name</th><th data-i18n="CIDR">CIDR</th><th data-i18n="Source">Source</th><th data-i18n="Interface">Interface</th><th data-i18n="Reachable">Reachable</th><th data-i18n="Enabled">Enabled</th><th data-i18n="Actions">Actions</th></tr></thead><tbody>{{range .Networks}}<tr><td><form id="network-{{.Id}}" method="post">{{$.xsrfdata}}<input type="hidden" name="Id" value="{{.Id}}"></form><input form="network-{{.Id}}" class="form-control form-control-sm" name="Name" value="{{.Name}}"></td><td><code>{{.CIDR}}</code></td><td>{{.Source}}</td><td>{{.Interface}}</td><td>{{if .Reachable}}✓{{else}}—{{end}}</td><td><input form="network-{{.Id}}" type="checkbox" name="Enabled" {{if .Enabled}}checked{{end}}></td><td><button form="network-{{.Id}}" class="btn btn-sm btn-primary" name="action" value="update-network" data-i18n="Save">Save</button> <button form="network-{{.Id}}" class="btn btn-sm btn-danger" name="action" value="delete-network" data-confirm="Delete this network?" data-i18n="Delete">Delete</button></td></tr>{{else}}<tr><td colspan="7" class="text-muted" data-i18n="No network resources yet.">No network resources yet.</td></tr>{{end}}</tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<script>document.addEventListener('click',function(e){var v=e.target.getAttribute('data-confirm');if(v){var t=window.OpenVPNUILanguage?window.OpenVPNUILanguage.t(v):v;if(!window.confirm(t)){e.preventDefault();}}});</script>
+{{end}}

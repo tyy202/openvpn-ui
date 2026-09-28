@@ -1,6 +1,6 @@
 # Linux Docker 试用部署
 
-这份部署从**当前源码**构建，包含中英文切换。需要一台能访问目标内网的 Linux 主机、Docker Engine 和 Docker Compose v2。支持服务器原生架构构建；无需在宿主机安装 Go、OpenVPN 或数据库。首次构建需要访问 Docker Hub 和 Alpine 软件仓库。
+这份部署从**当前源码**构建，包含中英文切换和按用户组控制网段访问。需要一台能访问目标内网的 Linux 主机、Docker Engine 和 Docker Compose v2。`openvpn` 与 `openvpn-ui` 使用 `network_mode: host`，适用于 Linux 和基于 Linux 内核的 NAS。无需在宿主机安装 Go、OpenVPN 或数据库。
 
 ## 1. 上传和填写配置
 
@@ -16,9 +16,9 @@ nano .env
 | 配置项 | 填写说明 |
 | --- | --- |
 | `OPENVPN_PUBLIC_HOST` | 客户端能访问的 Linux IP 或域名；必须替换示例，不带协议或端口 |
-| `OPENVPN_PUBLIC_PORT` | 对外 UDP 端口，默认 `1194`；容器内固定 `1194` |
+| `OPENVPN_PUBLIC_PORT` | OpenVPN 监听的 UDP 端口，默认 `1194` |
 | `OPENVPN_VPN_CIDR` | 分配给 VPN 客户端的地址池，默认 `10.8.0.0/24`；当前试用限定 `/24` |
-| `OPENVPN_LAN_CIDR` | 要访问的内网，如 `192.168.18.0/24`；这版支持一个 IPv4 网段 |
+| `OPENVPN_LAN_CIDR` | 首次初始化使用的示例内网；正式权限在 Web 后台维护，可配置多个 IPv4 网段 |
 | `OPENVPN_ADMIN_USERNAME` | 管理网页登录名，默认 `admin` |
 | `OPENVPN_ADMIN_PASSWORD` | 管理网页密码，必须替换，至少 12 字符；不是 VPN 客户端密码 |
 | `UI_BIND_IP` | 默认 `127.0.0.1`；要从内网直接打开网页，改为 Linux 的内网 IP |
@@ -30,6 +30,7 @@ VPN 地址池不能与目标内网、客户端所在地网络或 Docker 网络�
 
 ```bash
 test -c /dev/net/tun || sudo modprobe tun
+sudo sysctl -w net.ipv4.ip_forward=1
 docker compose config --quiet
 docker compose up -d --build
 docker compose logs -f init
@@ -52,20 +53,22 @@ ssh -L 8080:127.0.0.1:8080 your-user@your-linux-host
 
 如果已把 `UI_BIND_IP` 配成 Linux 内网 IP，则直接访问 `http://Linux内网IP:8080`（端口以 `UI_PORT` 为准）。网页使用 `.env` 中的管理员账号登录，右上角可切换中文/English。
 
-## 3. 生成和试用客户端配置
+## 3. 配置访问权限并生成客户端
 
-1. 登录后检查“服务端配置”和“客户端配置”：公网地址、端口、VPN 地址池和推送内网路由应与首次 `.env` 配置一致。
-2. 在证书页面为每个用户分别新建证书。试用时不启用 2FA，不设置证书私钥密码，不需要 VPN 用户名密码。管理员网页仍需要账号密码。
-3. 从网页下载对应用户的 `.ovpn`，导入 OpenVPN 客户端。
-4. 连接后访问目标内网设备的 IP 或服务端口。Linux 本身必须能访问这个内网；VPN 不会凭空提供一条不存在的网络链路。
+1. 登录后检查“服务端配置”和“客户端配置”：公网地址、端口和 VPN 地址池应与首次 `.env` 配置一致。
+2. 打开“配置 → VPN 访问控制”，点击“发现宿主机网络”。也可以手工新增任意有效 IPv4 CIDR。自动发现的网段默认禁用，检查名称和范围后再启用。
+3. 创建用户组，勾选该组允许访问的网段并保存。一个组可访问多个网段，一个网段也可分配给多个组。
+4. 创建 VPN 用户并选择唯一用户组。固定 VPN IP 留空时自动分配，也可以手工指定地址池内未使用的地址。
+5. 下载该用户的 `.ovpn` 并导入 OpenVPN 客户端。每个文件对应一个证书用户，连接时无需输入 VPN 用户名密码。
+6. 连接后访问获准的内网设备。Linux 本身必须能访问目标网络。
 
-默认只推送目标内网路由，不修改客户端默认网关；VPN 出站使用 NAT，因此通常不需要给内网设备加回程路由。**推送路由不是访问权限控制**：本次未实现按用户限制网段，客户端仍可能手工添加路由。后续再做用户级防火墙规则。
+CCD 只向客户端推送所属用户组获准的路由，宿主机防火墙还会按固定 VPN IP 强制过滤。没有明确授权的流量默认拒绝，客户端手工添加路由也不能绕过。VPN 出站使用 NAT，通常不需要给内网设备添加回程路由。
 
 ## 4. 后续修改与持久化
 
-`.env` 中的地址、网段和管理员账号用于**第一次初始化**。数据库存在后，不会覆盖网页里保存的设置。后续修改公网地址/导出端口可用现有“客户端配置”页面；修改推送路由可用“服务端配置”页面。修改后重新下载客户端配置。服务端容器端口保持 `1194/udp`，只改对外端口时需同时修改 `.env` 的端口映射和网页客户端导出端口。
+`.env` 中的地址、初始网段和管理员账号用于**第一次初始化**。数据库存在后，不会覆盖网页里保存的设置。后续修改公网地址和导出端口使用“客户端配置”页面；用户、组和授权网段统一在“VPN 访问控制”页面维护。
 
-改变 `UI_BIND_IP`、`UI_PORT` 或对外 UDP 映射后执行 `docker compose up -d`。管理员密码在网页账户设置中修改；单改 `.env` 不会重置已有密码。暂不提供用 `.env` 强制覆盖现有数据库的操作，避免重启时意外改动已经工作的 VPN。
+改变 `UI_BIND_IP` 或 `UI_PORT` 后执行 `docker compose up -d`。`host` 网络模式没有 Docker 端口映射；端口由进程直接在 Linux 主机上监听。管理员密码在网页账户设置中修改；单改 `.env` 不会重置已有密码。
 
 数据保存在项目目录下：
 
@@ -96,10 +99,10 @@ docker compose up -d
 
 ## 5. 已知边界和排错
 
-- 本套文件面向 Linux Docker Engine。当前开发机未运行 Docker 引擎，已进行 Compose 和脚本检查，但仍需你在目标 Linux 完成镜像构建及 VPN 连通测试。
-- 为兼容现有管理功能，管理界面挂载 Docker socket，可以控制宿主机 Docker；即使挂载为 `:ro` 也不构成 API 权限隔离。仅向可信管理员开放网页。未使用全局 `privileged`，只有 OpenVPN 容器拥有 `NET_ADMIN` 和 TUN 设备。
+- 本套文件只面向 Linux Docker Engine 或基于 Linux 内核的 NAS，不支持 Windows 生产部署。
+- 为应用宿主机访问控制，OpenVPN 与管理界面都拥有 `NET_ADMIN`；管理界面还挂载 Docker socket。仅向可信管理员开放网页。
 - 固定容器名为 `openvpn` 和 `openvpn-ui`，与现有重启脚本匹配；同一宿主机不要同时部署第二套同名实例。
-- 这次验证范围是普通证书认证。2FA、分用户网段访问限制、复杂多网段和全流量代理留待后续。
+- 当前访问控制只管理 IPv4 CIDR；IPv6 和全流量代理未纳入这套策略。
 - 若网页中的 Docker 重启功能报 API 版本错误，先用 `docker compose restart openvpn`；上游脚本使用固定 Docker API 版本，较新引擎可能不兼容。
 - `init` 失败先看 `docker compose logs init`；不要反复删除数据。`openvpn` 不健康时查看 `docker compose logs openvpn` 和 `sudo tail -n 100 data/log/openvpn.log`。
-- VPN 能连接但内网不通：先确认 Linux 到目标 IP 可达、目标设备防火墙允许访问、网段没有重叠，再检查宿主机 Docker 转发规则。可查看 `docker compose exec openvpn iptables -t nat -S`。
+- VPN 能连接但内网不通：先确认 Linux 到目标 IP 可达、目标设备防火墙允许访问、用户组已勾选并启用目标网段。再检查 `docker compose exec openvpn-ui iptables -S OPENVPN_UI_FORWARD` 和 NAT 规则。

@@ -2,7 +2,7 @@
 
 OpenVPN UI 是一个面向小型 OpenVPN 环境的 Web 管理界面。它可以管理 OpenVPN 服务端配置、EasyRSA PKI、客户端证书和连接状态，并生成可直接导入客户端的 `.ovpn` 配置文件。
 
-当前分支增加了简体中文界面和一套从源码构建的 Docker Compose 部署方案。
+当前分支增加了中英文界面、基于用户组的网段访问控制，以及 Linux `host` 网络模式的 Docker Compose 部署方案。
 
 <img src="https://raw.githubusercontent.com/d3vilh/openvpn-ui/main/docs/images/OpenVPN-UI-Home.png" alt="OpenVPN UI 首页"/>
 
@@ -17,6 +17,10 @@ OpenVPN UI 是一个面向小型 OpenVPN 环境的 Web 管理界面。它可以�
 - 生成、下载、续期、吊销、删除和查看客户端证书。
 - 生成包含 CA、客户端证书、私钥和 TLS 密钥的 `.ovpn` 文件。
 - 支持为客户端证书设置私钥密码和固定 VPN IP。
+- 在 Web 后台管理 VPN 用户、用户组和网络资源；一个证书用户只属于一个用户组，用户组与网段为多对多关系。
+- 自动分配或手工指定固定 VPN IP，通过 CCD 推送获准路由，并由宿主机 `iptables` 强制执行默认拒绝策略。
+- 从 Linux 宿主机路由表发现可用内网，也可以手工新增 IPv4 CIDR；发现的网段需由管理员明确启用。
+- 支持在后台禁用、启用、续签和删除证书用户；策略变化会立即断开对应会话。
 - 支持基于 `oath-toolkit` 的双因素认证（2FA）。
 - 管理 EasyRSA 参数、CA、DH、CRL 和 TLS 密钥。
 - 在网页中查看 OpenVPN 日志并重启相关容器。
@@ -33,6 +37,8 @@ OpenVPN UI 是一个面向小型 OpenVPN 环境的 Web 管理界面。它可以�
 | `init` | 首次创建数据库、OpenVPN 配置、CA 和服务端证书，完成后正常退出 |
 | `openvpn` | 运行 OpenVPN 服务端，使用 TUN 设备和 `NET_ADMIN` 权限 |
 | `openvpn-ui` | 提供管理网页，管理配置、证书和 OpenVPN 容器 |
+
+`openvpn` 和 `openvpn-ui` 使用 `network_mode: host`，因此能够读取 Linux 宿主机路由并在宿主机网络命名空间中执行访问控制。此部署方式面向 Linux 和基于 Linux 内核的 NAS，不支持 Windows 作为生产宿主机。
 
 ### 环境要求
 
@@ -52,6 +58,7 @@ chmod 600 .env
 nano .env
 
 test -c /dev/net/tun || sudo modprobe tun
+sudo sysctl -w net.ipv4.ip_forward=1
 docker compose config --quiet
 docker compose up -d --build
 ```
@@ -68,6 +75,14 @@ docker compose logs --tail=100 openvpn openvpn-ui
 
 完整的部署、端口转发、备份和排错说明请阅读：[Linux Docker 部署说明](docs/docker-deployment.zh-CN.md)。
 
+如果使用仓库里的 `docker/` 目录，则 Compose 会直接拉取私有仓库镜像 `192.168.18.100:5001/openvpn-ui:v0.2`：
+
+```bash
+cd docker
+docker compose pull
+docker compose up -d
+```
+
 > 使用上游预编译镜像 `d3vilh/openvpn-ui:latest` 不会包含本分支的中文界面。要使用当前修改，请执行 `docker compose up -d --build` 从源码构建。
 
 ## 环境变量
@@ -79,11 +94,11 @@ docker compose logs --tail=100 openvpn openvpn-ui
 | `OPENVPN_PUBLIC_HOST` | `vpn.example.com` | 客户端能访问的服务器 IP 或域名，必须修改；不要填写协议或端口 |
 | `OPENVPN_PUBLIC_PORT` | `1194` | 对外提供服务的 UDP 端口 |
 | `OPENVPN_VPN_CIDR` | `10.8.0.0/24` | 分配给 VPN 客户端的地址池；当前固定 IP 功能要求使用 `/24` |
-| `OPENVPN_LAN_CIDR` | `192.168.18.0/24` | VPN 客户端需要访问的目标内网 |
+| `OPENVPN_LAN_CIDR` | `192.168.18.0/24` | 首次初始化写入的示例目标内网；后续在 Web 后台维护网络资源 |
 | `OPENVPN_ADMIN_USERNAME` | `admin` | 管理网页的初始管理员账号 |
 | `OPENVPN_ADMIN_PASSWORD` | 示例占位符 | 管理网页的初始密码，必须修改且至少 12 个字符 |
-| `UI_BIND_IP` | `127.0.0.1` | 管理网页监听的宿主机地址；改为 Linux 内网 IP 后可从内网直接访问 |
-| `UI_PORT` | `8080` | 管理网页映射到宿主机的端口 |
+| `UI_BIND_IP` | `127.0.0.1` | `host` 网络模式下管理网页直接监听的 Linux 地址；改为内网 IP 后可从内网访问 |
+| `UI_PORT` | `8080` | 管理网页直接监听的 TCP 端口 |
 
 VPN 地址池不能与目标内网、客户端所在地网络或 Docker 网络重叠。如果密码包含 `$`、`#` 等字符，请使用单引号包住整个值：
 
@@ -113,22 +128,21 @@ http://Linux内网IP:8080
 
 证书名称、用户名、OpenVPN 配置内容和原始日志属于用户数据或技术配置，不会被翻译。中文界面的维护方式和测试方法见：[中英文界面维护说明](docs/bilingual-ui.md)。
 
-## 生成客户端配置
+## 配置证书用户和访问权限
 
 1. 登录管理界面。
 2. 打开“配置 → OpenVPN 客户端”，确认连接地址和连接端口是客户端实际能够访问的公网 IP、内网 IP 或域名。
-3. 打开“证书”，点击“创建证书”。
-4. 输入客户端名称；普通证书认证不需要启用 2FA，也不需要 VPN 用户名和密码。
-5. 创建完成后，点击客户端名称下载 `.ovpn` 文件。
-6. 将文件导入 [OpenVPN Connect](https://openvpn.net/client/) 或其他兼容的 OpenVPN 客户端。
+3. 打开“配置 → VPN 访问控制”，点击“发现宿主机网络”，或手工新增 IPv4 CIDR。检查名称后明确启用需要管理的网段。
+4. 创建用户组，在用户组中勾选允许访问的网段并保存。未勾选的网段默认拒绝。
+5. 创建 VPN 用户并选择用户组。证书 CN 必须唯一；固定 VPN IP 留空时会从地址池自动分配。
+6. 点击“下载 OVPN”。生成的文件包含证书和私钥，导入客户端后无需输入 VPN 用户名或密码。
+7. 将文件导入 [OpenVPN Connect](https://openvpn.net/client/) 或其他兼容客户端。
 
 <img src="https://github.com/d3vilh/openvpn-ui/blob/main/docs/images/OpenVPN-UI-New_Client.png" alt="创建客户端证书" width="500" border="1" />
 
 <img src="https://github.com/d3vilh/openvpn-ui/blob/main/docs/images/OpenVPN-UI-New_Client_download.png" alt="下载 OVPN 配置" width="500" border="1" />
 
-当前默认部署只向客户端推送目标内网路由，不会修改客户端的默认网关。OpenVPN 容器通过 NAT 转发 VPN 流量，通常无需在内网设备上额外配置回程路由。
-
-> 推送路由不等同于权限控制。当前版本还没有实现“按用户限制可访问网段”；客户端可能自行添加路由。真正的用户级访问控制需要配合服务端防火墙规则实现。
+系统会在客户端 CCD 中只推送所属用户组获准的路由，同时在服务端按固定 VPN IP 生成防火墙规则。即使客户端自行添加路由，未授权流量仍会被 `OPENVPN_UI_FORWARD` 或 `OPENVPN_UI_INPUT` 链拒绝。
 
 ## 网络和防火墙
 
@@ -139,15 +153,15 @@ http://Linux内网IP:8080
 | `${OPENVPN_PUBLIC_PORT}` | UDP | OpenVPN 客户端连接 |
 | `${UI_PORT}` | TCP | 管理网页；默认只绑定到 `127.0.0.1` |
 
-OpenVPN 管理接口使用容器网络中的 `2080/tcp`，没有映射到宿主机。
+OpenVPN 管理接口只由管理程序通过宿主机回环地址 `127.0.0.1:2080` 使用。
 
 如果服务器位于路由器后，需要把所选 UDP 端口转发到 Linux 主机；云服务器还需要在安全组中允许这个 UDP 端口。管理网页不建议直接暴露到公网。
 
 OpenVPN 容器启动时会：
 
 - 开启 IPv4 转发。
-- 为 VPN 地址池添加 `MASQUERADE` 规则。
-- 允许 VPN 隧道的转发流量。
+- 为 VPN 地址池添加适用于宿主机各路由接口的 `MASQUERADE` 规则；需要时可用 `OPENVPN_NAT_INTERFACE` 限定接口。
+- 在 OpenVPN 接受连接前建立默认拒绝链；Web 服务启动后再以数据库中的用户组策略原子更新放行规则。
 
 VPN 可以连接但无法访问内网时，依次检查：
 
@@ -156,10 +170,12 @@ VPN 可以连接但无法访问内网时，依次检查：
 3. 目标设备的防火墙是否允许来自 Linux 主机的访问。
 4. 宿主机或云平台是否阻止转发流量。
 
-查看容器内的 NAT 规则：
+查看 NAT 和访问控制规则：
 
 ```bash
 docker compose exec openvpn iptables -t nat -S
+docker compose exec openvpn-ui iptables -S OPENVPN_UI_FORWARD
+docker compose exec openvpn-ui iptables -S OPENVPN_UI_INPUT
 ```
 
 ## 数据持久化
@@ -216,13 +232,13 @@ docker compose logs --tail=100 openvpn openvpn-ui
 
 ## 证书续期、吊销和删除
 
-在“证书”页面可以执行以下操作：
+“配置 → VPN 访问控制”页面提供面向受管 VPN 用户的完整生命周期：
 
-- **续期**：为同一客户端生成新证书。新旧证书会暂时同时存在，方便先将新配置交给客户端。
-- **吊销**：将证书加入 CRL，阻止它再次连接。吊销不会自动断开已经建立的连接；如需立即断开，请重启 OpenVPN 服务。
-- **删除**：删除已经吊销的证书及相关文件。删除属于不可恢复操作，执行前应确认备份可用。
+- **续签**：生成新证书并立即吊销旧证书，同时断开现有连接。用户必须重新下载最新 `.ovpn`。
+- **禁用**：CCD 写入 `disable`，移除防火墙放行规则并立即断开连接；重新启用后可继续使用当前证书。
+- **删除**：立即断开连接、吊销证书、更新 CRL、删除 CCD 和客户端文件，并释放固定 VPN IP。
 
-续期证书下载后，应先在客户端确认新配置可以连接，再吊销旧证书。
+原有“证书”页面仍可用于查看 PKI 记录；受管用户的续签、禁用和删除应统一在“VPN 访问控制”页面执行。
 
 ## 双因素认证（2FA）
 

@@ -29,6 +29,16 @@ func main() {
 	if err := web.LoadAppConfig("ini", configFile); err != nil {
 		panic(err)
 	}
+	if bindAddress := os.Getenv("UI_BIND_IP"); bindAddress != "" {
+		web.BConfig.Listen.HTTPAddr = bindAddress
+	}
+	if port := os.Getenv("UI_PORT"); port != "" {
+		var parsed int
+		if _, err := fmt.Sscanf(port, "%d", &parsed); err != nil || parsed < 1 || parsed > 65535 {
+			panic("invalid UI_PORT")
+		}
+		web.BConfig.Listen.HTTPPort = parsed
+	}
 
 	models.InitDB()
 	models.CreateDefaultUsers()
@@ -43,6 +53,9 @@ func main() {
 	state.GlobalCfg = *defaultSettings
 	if *initOnly {
 		return
+	}
+	if err := lib.ReconcileAccessPolicy(); err != nil {
+		panic(fmt.Errorf("initialize VPN access policy: %w", err))
 	}
 
 	routers.Init(*configDir)
