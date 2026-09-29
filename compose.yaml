@@ -54,6 +54,7 @@ services:
       OPENVPN_MANAGEMENT_ADDRESS: 127.0.0.1:2080
       UI_BIND_IP: ${UI_BIND_IP:-127.0.0.1}
       UI_PORT: ${UI_PORT:-8080}
+      OPENVPN_UI_NETWORK_SCOPES: ${OPENVPN_UI_NETWORK_SCOPES:-}
     network_mode: host
     cap_add: [NET_ADMIN]
     volumes:

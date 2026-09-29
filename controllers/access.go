@@ -11,22 +11,32 @@ import (
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/d3vilh/openvpn-ui/internal/networkscope"
 	"github.com/d3vilh/openvpn-ui/lib"
 	"github.com/d3vilh/openvpn-ui/models"
 	"github.com/d3vilh/openvpn-ui/state"
 )
 
-type AccessController struct{ BaseController }
+type AccessController struct {
+	BaseController
+	accessScope networkscope.Scope
+}
 
 func (c *AccessController) NestPrepare() {
 	if !c.IsLogin {
 		c.Ctx.Redirect(302, c.LoginPath())
 		return
 	}
-	if c.Userinfo == nil || !c.Userinfo.IsAdmin {
+	scope, allowed, err := resolveAccessScope(c.Userinfo)
+	if err != nil {
+		c.Abort("500")
+		return
+	}
+	if !allowed {
 		c.Abort("403")
 		return
 	}
+	c.accessScope = scope
 	c.Data["breadcrumbs"] = &BreadCrumbs{Title: "VPN Access Control"}
 }
 
@@ -68,6 +78,9 @@ func (c *AccessController) perform(action string) error {
 	o := orm.NewOrm()
 	switch action {
 	case "discover-networks":
+		if !c.accessScope.All {
+			return fmt.Errorf("host network discovery requires full network scope")
+		}
 		_, err := lib.DiscoverNetworkResources()
 		return err
 	case "create-network":
@@ -75,6 +88,9 @@ func (c *AccessController) perform(action string) error {
 		ip, n, err := net.ParseCIDR(cidr)
 		if err != nil || ip.To4() == nil {
 			return fmt.Errorf("invalid IPv4 CIDR")
+		}
+		if !c.accessScope.Allows(n.String()) {
+			return fmt.Errorf("network is outside your configured scope")
 		}
 		row := models.NetworkResource{Name: strings.TrimSpace(c.GetString("Name")), CIDR: n.String(), Source: "manual", Enabled: true, Reachable: true}
 		if row.Name == "" {
@@ -93,6 +109,9 @@ func (c *AccessController) perform(action string) error {
 		if err = o.Read(&row); err != nil {
 			return err
 		}
+		if err = c.requireNetwork(&row); err != nil {
+			return err
+		}
 		row.Name = strings.TrimSpace(c.GetString("Name"))
 		row.Enabled = c.GetString("Enabled") == "on"
 		if row.Name == "" {
@@ -107,6 +126,13 @@ func (c *AccessController) perform(action string) error {
 		if err != nil {
 			return err
 		}
+		row := models.NetworkResource{Id: id}
+		if err = o.Read(&row); err != nil {
+			return err
+		}
+		if err = c.requireNetwork(&row); err != nil {
+			return err
+		}
 		if _, err = o.QueryTable(new(models.GroupNetwork)).Filter("Network__Id", id).Delete(); err != nil {
 			return err
 		}
@@ -119,16 +145,18 @@ func (c *AccessController) perform(action string) error {
 		if name == "" {
 			return fmt.Errorf("group name is required")
 		}
-		row := models.VPNGroup{Name: name, Description: strings.TrimSpace(c.GetString("Description")), Enabled: true}
-		if _, err := o.Insert(&row); err != nil {
+		networkIDs, err := c.allowedNetworkIDs(o, c.GetStrings("NetworkIDs"))
+		if err != nil {
 			return err
 		}
-		for _, value := range c.GetStrings("NetworkIDs") {
-			networkID, err := parseID(value)
-			if err != nil {
-				_, _ = o.Delete(&row)
-				return err
-			}
+		if !c.accessScope.All && len(networkIDs) == 0 {
+			return fmt.Errorf("select at least one network within your scope")
+		}
+		row := models.VPNGroup{Name: name, Description: strings.TrimSpace(c.GetString("Description")), Enabled: true}
+		if _, err = o.Insert(&row); err != nil {
+			return err
+		}
+		for _, networkID := range networkIDs {
 			link := models.GroupNetwork{Group: &row, Network: &models.NetworkResource{Id: networkID}}
 			if _, err = o.Insert(&link); err != nil {
 				_, _ = o.QueryTable(new(models.GroupNetwork)).Filter("Group__Id", row.Id).Delete()
@@ -146,6 +174,16 @@ func (c *AccessController) perform(action string) error {
 		if err = o.Read(&row); err != nil {
 			return err
 		}
+		if err = c.requireGroup(o, row.Id); err != nil {
+			return err
+		}
+		networkIDs, err := c.allowedNetworkIDs(o, c.GetStrings("NetworkIDs"))
+		if err != nil {
+			return err
+		}
+		if !c.accessScope.All && len(networkIDs) == 0 {
+			return fmt.Errorf("select at least one network within your scope")
+		}
 		row.Name = strings.TrimSpace(c.GetString("Name"))
 		row.Description = strings.TrimSpace(c.GetString("Description"))
 		row.Enabled = c.GetString("Enabled") == "on"
@@ -158,11 +196,7 @@ func (c *AccessController) perform(action string) error {
 		if _, err = o.QueryTable(new(models.GroupNetwork)).Filter("Group__Id", id).Delete(); err != nil {
 			return err
 		}
-		for _, value := range c.GetStrings("NetworkIDs") {
-			networkID, parseErr := parseID(value)
-			if parseErr != nil {
-				return parseErr
-			}
+		for _, networkID := range networkIDs {
 			link := models.GroupNetwork{Group: &row, Network: &models.NetworkResource{Id: networkID}}
 			if _, err = o.Insert(&link); err != nil {
 				return err
@@ -182,6 +216,9 @@ func (c *AccessController) perform(action string) error {
 		if err != nil {
 			return err
 		}
+		if err = c.requireGroup(o, id); err != nil {
+			return err
+		}
 		count, err := o.QueryTable(new(models.VPNUser)).Filter("Group__Id", id).Count()
 		if err != nil {
 			return err
@@ -199,12 +236,21 @@ func (c *AccessController) perform(action string) error {
 			return err
 		}
 		user := models.VPNUser{Id: id}
-		if err = o.Read(&user); err != nil {
+		if err = o.QueryTable(new(models.VPNUser)).Filter("Id", id).RelatedSel("Group").One(&user); err != nil {
+			return err
+		}
+		if user.Group == nil {
+			return fmt.Errorf("user has no group")
+		}
+		if err = c.requireGroup(o, user.Group.Id); err != nil {
 			return err
 		}
 		oldIP := user.StaticIP
 		groupID, err := parseID(c.GetString("GroupId"))
 		if err != nil {
+			return err
+		}
+		if err = c.requireGroup(o, groupID); err != nil {
 			return err
 		}
 		if requested := strings.TrimSpace(c.GetString("StaticIP")); requested != "" && requested != oldIP {
@@ -232,7 +278,13 @@ func (c *AccessController) perform(action string) error {
 			return err
 		}
 		user := models.VPNUser{Id: id}
-		if err = o.Read(&user); err != nil {
+		if err = o.QueryTable(new(models.VPNUser)).Filter("Id", id).RelatedSel("Group").One(&user); err != nil {
+			return err
+		}
+		if user.Group == nil {
+			return fmt.Errorf("user has no group")
+		}
+		if err = c.requireGroup(o, user.Group.Id); err != nil {
 			return err
 		}
 		serial, err := validCertificateSerial(user.CertificateCN)
@@ -253,7 +305,13 @@ func (c *AccessController) perform(action string) error {
 			return err
 		}
 		user := models.VPNUser{Id: id}
-		if err = o.Read(&user); err != nil {
+		if err = o.QueryTable(new(models.VPNUser)).Filter("Id", id).RelatedSel("Group").One(&user); err != nil {
+			return err
+		}
+		if user.Group == nil {
+			return fmt.Errorf("user has no group")
+		}
+		if err = c.requireGroup(o, user.Group.Id); err != nil {
 			return err
 		}
 		_ = lib.KillVPNSession(user.CertificateCN)
@@ -295,6 +353,9 @@ func (c *AccessController) createUser(o orm.Ormer) error {
 	if err = o.Read(&group); err != nil {
 		return err
 	}
+	if err = c.requireGroup(o, groupID); err != nil {
+		return err
+	}
 	address, err := lib.AllocateVPNAddress(c.GetString("StaticIP"))
 	if err != nil {
 		return err
@@ -314,6 +375,56 @@ func (c *AccessController) createUser(o orm.Ormer) error {
 		return err
 	}
 	return lib.ReconcileAccessPolicy()
+}
+
+func (c *AccessController) requireNetwork(network *models.NetworkResource) error {
+	if network == nil || !c.accessScope.Allows(network.CIDR) {
+		return fmt.Errorf("network is outside your configured scope")
+	}
+	return nil
+}
+
+func (c *AccessController) allowedNetworkIDs(o orm.Ormer, values []string) ([]int64, error) {
+	ids := make([]int64, 0, len(values))
+	seen := make(map[int64]struct{}, len(values))
+	for _, value := range values {
+		id, err := parseID(value)
+		if err != nil {
+			return nil, err
+		}
+		if _, exists := seen[id]; exists {
+			continue
+		}
+		network := models.NetworkResource{Id: id}
+		if err = o.Read(&network); err != nil {
+			return nil, err
+		}
+		if err = c.requireNetwork(&network); err != nil {
+			return nil, err
+		}
+		seen[id] = struct{}{}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+func (c *AccessController) requireGroup(o orm.Ormer, groupID int64) error {
+	if c.accessScope.All {
+		return nil
+	}
+	var links []*models.GroupNetwork
+	if _, err := o.QueryTable(new(models.GroupNetwork)).Filter("Group__Id", groupID).RelatedSel("Network").All(&links); err != nil {
+		return err
+	}
+	if len(links) == 0 {
+		return fmt.Errorf("group is outside your configured scope")
+	}
+	for _, link := range links {
+		if link.Network == nil || !c.accessScope.Allows(link.Network.CIDR) {
+			return fmt.Errorf("group is outside your configured scope")
+		}
+	}
+	return nil
 }
 
 func validCertificateSerial(cn string) (string, error) {

@@ -3,7 +3,7 @@
     <i class="fa fa-dashboard"></i><span data-i18n="Home">Home</span>
   </a>
 
-  {{if .Userinfo.IsAdmin}}
+  {{if .CanManageAccess}}
   <div class="admin-nav-group {{if compare .RouterPattern "/access"}}open active{{end}}">
     <button type="button" class="admin-nav-item admin-nav-parent" data-submenu-toggle aria-expanded="{{if compare .RouterPattern "/access"}}true{{else}}false{{end}}">
       <i class="fa fa-sitemap"></i><span data-i18n="VPN Access Control">VPN Access Control</span><i class="fa fa-angle-down admin-nav-chevron"></i>

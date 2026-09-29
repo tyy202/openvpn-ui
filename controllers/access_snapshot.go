@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/d3vilh/openvpn-ui/internal/networkscope"
 	"github.com/d3vilh/openvpn-ui/lib"
 	"github.com/d3vilh/openvpn-ui/models"
 )
@@ -51,12 +52,13 @@ type userView struct {
 }
 
 type accessSnapshot struct {
-	PolicyMode string        `json:"policyMode"`
-	VPNPool    string        `json:"vpnPool"`
-	XSRFToken  string        `json:"xsrfToken"`
-	Groups     []groupView   `json:"groups"`
-	Networks   []networkView `json:"networks"`
-	Users      []userView    `json:"users"`
+	PolicyMode          string        `json:"policyMode"`
+	VPNPool             string        `json:"vpnPool"`
+	XSRFToken           string        `json:"xsrfToken"`
+	CanDiscoverNetworks bool          `json:"canDiscoverNetworks"`
+	Groups              []groupView   `json:"groups"`
+	Networks            []networkView `json:"networks"`
+	Users               []userView    `json:"users"`
 }
 
 func toNetworkView(network *models.NetworkResource) networkView {
@@ -110,7 +112,18 @@ func buildAccessSnapshot(groups []*models.VPNGroup, networks []*models.NetworkRe
 	return result
 }
 
+func buildScopedAccessSnapshot(scope networkscope.Scope, groups []*models.VPNGroup, networks []*models.NetworkResource, users []*models.VPNUser, links []*models.GroupNetwork, pool, token string) accessSnapshot {
+	groups, networks, users, links = filterAccessData(scope, groups, networks, users, links)
+	result := buildAccessSnapshot(groups, networks, users, links, pool, token)
+	result.CanDiscoverNetworks = scope.All
+	return result
+}
+
 type AccessSnapshotController struct{ BaseController }
+
+func (c *AccessSnapshotController) currentScope() (networkscope.Scope, bool, error) {
+	return resolveAccessScope(c.Userinfo)
+}
 
 func (c *AccessSnapshotController) NestPrepare() {
 	if !c.IsLogin {
@@ -119,13 +132,22 @@ func (c *AccessSnapshotController) NestPrepare() {
 		_ = c.ServeJSON()
 		return
 	}
-	if c.Userinfo == nil || !c.Userinfo.IsAdmin {
+	_, allowed, err := c.currentScope()
+	if err != nil {
+		c.Abort("500")
+		return
+	}
+	if !allowed {
 		c.Abort("403")
 	}
 }
 
 func (c *AccessSnapshotController) Get() {
-	if !c.IsLogin || c.Userinfo == nil || !c.Userinfo.IsAdmin {
+	scope, allowed, err := c.currentScope()
+	if err != nil {
+		return
+	}
+	if !c.IsLogin || c.Userinfo == nil || !allowed {
 		return
 	}
 	o := orm.NewOrm()
@@ -138,7 +160,7 @@ func (c *AccessSnapshotController) Get() {
 	_, _ = o.QueryTable(new(models.VPNUser)).RelatedSel("Group").OrderBy("Name").All(&users)
 	_, _ = o.QueryTable(new(models.GroupNetwork)).RelatedSel("Group", "Network").All(&links)
 	pool, _ := lib.VPNPoolCIDR()
-	c.Data["json"] = buildAccessSnapshot(groups, networks, users, links, pool, c.XSRFToken())
+	c.Data["json"] = buildScopedAccessSnapshot(scope, groups, networks, users, links, pool, c.XSRFToken())
 	_ = c.ServeJSON()
 }
 
@@ -149,13 +171,19 @@ func (c *ModernAppController) NestPrepare() {
 		c.Ctx.Redirect(http.StatusFound, c.LoginPath())
 		return
 	}
-	if c.Userinfo == nil || !c.Userinfo.IsAdmin {
+	_, allowed, err := resolveAccessScope(c.Userinfo)
+	if err != nil {
+		c.Abort("500")
+		return
+	}
+	if !allowed {
 		c.Abort("403")
 	}
 }
 
 func (c *ModernAppController) Get() {
-	if !c.IsLogin || c.Userinfo == nil || !c.Userinfo.IsAdmin {
+	_, allowed, _ := resolveAccessScope(c.Userinfo)
+	if !c.IsLogin || c.Userinfo == nil || !allowed {
 		return
 	}
 	c.Ctx.Redirect(http.StatusMovedPermanently, "/access")

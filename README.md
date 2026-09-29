@@ -129,6 +129,8 @@ OPENVPN_ADMIN_PASSWORD=CHANGE_ME_USE_A_LONG_RANDOM_PASSWORD
 
 UI_BIND_IP=0.0.0.0
 UI_PORT=8080
+
+OPENVPN_UI_NETWORK_SCOPES=
 ```
 
 | 配置项 | 说明 |
@@ -144,6 +146,7 @@ UI_PORT=8080
 | `OPENVPN_ADMIN_PASSWORD` | Web 管理后台的初始密码，至少 12 个字符 |
 | `UI_BIND_IP` | 管理后台监听地址；`0.0.0.0` 表示允许通过主机网络访问 |
 | `UI_PORT` | 管理后台端口，默认 `8080` |
+| `OPENVPN_UI_NETWORK_SCOPES` | 可选的后台账号网段作用域；留空保持原管理员全权限行为 |
 
 VPN 地址池不能与目标内网、Docker 网络或客户端所在地网络重叠。含 `$`、`#` 等字符的密码建议使用单引号包裹：
 
@@ -151,7 +154,30 @@ VPN 地址池不能与目标内网、Docker 网络或客户端所在地网络重
 OPENVPN_ADMIN_PASSWORD='your-long-random-password'
 ```
 
-这些变量主要用于首次初始化。数据库创建后，修改 `.env` 不会覆盖后台中已经保存的账号和配置。
+地址池、初始网段和初始管理员变量主要用于首次初始化。数据库创建后，修改这些值不会覆盖后台中已经保存的账号和配置；监听地址和账号网段作用域则会在 `openvpn-ui` 容器每次启动时读取。
+
+### 按后台账号限制网段
+
+`OPENVPN_UI_NETWORK_SCOPES` 可以让多个后台账号只看到和管理分配给自己的网段。账号名对应“用户资料配置”中创建的登录名，匹配时不区分大小写：
+
+```dotenv
+OPENVPN_UI_NETWORK_SCOPES=admin=*;office-admin=192.168.18.0/24,10.32.22.0/24;branch-admin=172.16.10.0/24
+```
+
+- `admin=*` 表示该账号可以查看和管理全部网段。
+- `office-admin` 只能看到两个指定网段，以及权限完全位于这两个网段内的用户组和 VPN 用户。
+- `branch-admin` 只能看到 `172.16.10.0/24`。
+- 未列出的后台账号不能进入“VPN 访问控制”。
+- 跨越可见和隐藏网段的混合用户组不会展示给窄权限账号，避免间接授予隐藏网段。
+- 只有 `*` 全权限账号可以执行“发现主机网络”；窄权限账号仍可手工新增其白名单中的 CIDR。
+
+变量留空时保持向后兼容：管理员可以管理全部网段，普通后台账号不能进入访问控制。配置非空后，它会成为访问控制页面的账号白名单，所以应始终为主管理员保留 `admin=*` 或对应的实际登录名。
+
+修改作用域后只需重建 `openvpn-ui` 容器，不需要重新初始化 CA 或数据库：
+
+```bash
+docker compose up -d --force-recreate openvpn-ui
+```
 
 ## 使用流程
 

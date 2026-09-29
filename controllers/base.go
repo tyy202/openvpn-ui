@@ -41,6 +41,11 @@ func (c *BaseController) Prepare() {
 
 	c.Data["IsLogin"] = c.IsLogin
 	c.Data["Userinfo"] = c.Userinfo
+	c.Data["CanManageAccess"] = false
+	if c.Userinfo != nil {
+		_, allowed, err := resolveAccessScope(c.Userinfo)
+		c.Data["CanManageAccess"] = err == nil && allowed
+	}
 
 	if app, ok := c.AppController.(NestPreparer); ok {
 		app.NestPrepare()
