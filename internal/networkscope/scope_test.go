@@ -37,8 +37,16 @@ func TestResolveConfiguredScopesByLogin(t *testing.T) {
 	}
 }
 
+func TestResolveAllowsTrailingEntrySeparator(t *testing.T) {
+	scope, allowed, err := Resolve("tanyxa=*;admin=192.168.110.0/24;", "admin", true)
+	if err != nil || !allowed || scope.All || !scope.Allows("192.168.110.0/24") {
+		t.Fatalf("Resolve() = %#v, %v, %v; want the configured admin network", scope, allowed, err)
+	}
+}
+
 func TestResolveRejectsInvalidConfiguration(t *testing.T) {
 	cases := []string{
+		";",
 		"ops",
 		"=192.168.18.0/24",
 		"ops=not-a-network",

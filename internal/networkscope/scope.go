@@ -28,6 +28,10 @@ func Resolve(raw, login string, isAdmin bool) (Scope, bool, error) {
 	if raw == "" {
 		return Scope{All: isAdmin}, isAdmin, nil
 	}
+	raw = strings.TrimRight(raw, "; \t\r\n")
+	if raw == "" {
+		return Scope{}, false, fmt.Errorf("network scope configuration contains no entries")
+	}
 
 	scopes := make(map[string]Scope)
 	for _, entry := range strings.Split(raw, ";") {
