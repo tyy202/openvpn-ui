@@ -1,6 +1,11 @@
 /* English source strings remain the fallback and the English language pack. */
 window.OpenVPNUIZh = {
   "Language": "语言",
+  "Management": "管理",
+  "System": "系统",
+  "Service console": "服务控制台",
+  "Management console": "管理控制台",
+  "Welcome back": "欢迎回来",
   "Home": "首页",
   "(current)": "（当前）",
   "Configuration": "配置",

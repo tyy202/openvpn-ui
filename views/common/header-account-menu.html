@@ -1,11 +1,12 @@
 <!-- User Account Menu -->
-<li class="dropdown user user-menu {{if compare .RouterPattern "/profile"}}nav-item{{end}}">
+<li class="dropdown user user-menu {{if compare .RouterPattern "/profile"}}active{{end}}">
   <!-- Menu Toggle Button -->
   <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
     <!-- The user image in the navbar-->
-    <img src="/static/img/person.png" class="user-image" alt="User Image">
+    <span class="admin-avatar"><img src="/static/img/person.png" alt=""></span>
     <!-- hidden-xs hides the username on small devices so only the image appears. -->
-    <span class="hidden-xs">{{ .Userinfo.Name}}</span>
+    <span class="admin-account-name">{{ .Userinfo.Name}}</span>
+    <i class="fa fa-angle-down admin-account-chevron"></i>
   </a>
   <ul class="dropdown-menu">
     <!-- The user image in the menu -->

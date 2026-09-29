@@ -4,60 +4,41 @@
 		{{template "common/header.html" .}}
 		{{template "head" .}}
 	</head>
-  <body class="hold-transition layout-top-nav">
-  <div class="wrapper">
-      <nav class="main-header navbar navbar-expand-md navbar-white navbar-light">
-        <div class="container">
-            <a href="{{urlfor "MainController.Get"}}" class="navbar-brand">
-              <img src="/static/img/openvpn-win.svg" alt="OpenVPN UI Logo" class="brand-image img-circle elevation-3"
-              style="opacity: .8">
-              <span class="brand-text font-weight-light"><b>OpenVPN</b> UI</span></a>
-              <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" data-i18n-aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-                </button>
+  <body class="hold-transition modern-admin">
+  <div class="admin-shell">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <a href="{{urlfor "MainController.Get"}}" class="admin-brand">
+        <span class="admin-brand-mark"><img src="/static/img/openvpn-win.svg" alt=""></span>
+        <span><strong>OpenVPN</strong><small data-i18n="Management console">Management console</small></span>
+      </a>
+      <div class="admin-sidebar-caption" data-i18n="Management">Management</div>
+      {{ template "common/header-top-menu.html" . }}
+      <div class="admin-sidebar-footer"><span class="admin-status-dot"></span><span data-i18n="Service console">Service console</span></div>
+    </aside>
+    <div class="admin-sidebar-backdrop" data-sidebar-close></div>
 
-          <!-- Collect the nav links, forms, and other content for toggling -->
-          <div class="collapse navbar-collapse pull-left" id="navbarCollapse">
-            {{ template "common/header-top-menu.html" . }}
-          </div>
-          <!-- /.navbar-collapse -->
-          <!-- Navbar Right Menu -->
-          <div class="navbar-custom-menu">
-            <ul class="nav navbar-nav">
-              <!--template "common/header-notifications.html" . -->
-              {{ template "common/header-account-menu.html" . }}
-            </ul>
-          </div>
-          <!-- /.navbar-custom-menu -->
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item">{{template "common/language.html" .}}</li>
-        <li class="nav-item">
-          <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="checkbox">
-            <label class="custom-control-label" for="checkbox" id="theme-label"><span data-i18n="Light">Light</span></label>
-          </div>
-        </li>
-      </ul>
-
-
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="admin-topbar-left">
+          <button class="admin-menu-toggle" type="button" data-sidebar-toggle aria-label="Toggle navigation" data-i18n-aria-label="Toggle navigation"><i class="fa fa-bars"></i></button>
+          {{ template "common/header-top-navigation.html" . }}
         </div>
-        <!-- /.container-fluid -->
-      </nav>
-    </header>
-    <!-- Full Width Column -->
-    <div class="content-wrapper">
-      <div class="container">
-        {{ template "common/header-top-navigation.html" . }}
-
-      <!-- Main content -->
-      <section class="content">
-        {{ template "body" . }}
-      </section>
+        <div class="admin-topbar-actions">
+          {{template "common/language.html" .}}
+          <label class="admin-theme-switch" title="Theme">
+            <input type="checkbox" id="checkbox">
+            <span class="admin-theme-track"><i class="fa fa-moon-o"></i></span>
+            <span id="theme-label" class="sr-only"><span data-i18n="Light">Light</span></span>
+          </label>
+          <ul class="nav admin-account-nav">{{ template "common/header-account-menu.html" . }}</ul>
+        </div>
+      </header>
+      <div class="content-wrapper">
+        <section class="content admin-content">{{ template "body" . }}</section>
 
 	{{template "common/footer.html" .}}
-	</body>
-</html>
-
+	</main>
+  </div>
 <script>
   // Get a reference to the checkbox element
   const checkbox = document.getElementById('checkbox');
@@ -92,4 +73,17 @@
       localStorage.removeItem('theme');
     }
   });
+
+  const sidebar = document.getElementById('adminSidebar');
+  document.querySelectorAll('[data-sidebar-toggle]').forEach(function (button) {
+    button.addEventListener('click', function () { document.body.classList.toggle('sidebar-open'); });
+  });
+  document.querySelectorAll('[data-sidebar-close]').forEach(function (backdrop) {
+    backdrop.addEventListener('click', function () { document.body.classList.remove('sidebar-open'); });
+  });
+  if (sidebar) sidebar.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () { document.body.classList.remove('sidebar-open'); });
+  });
 </script>
+	</body>
+</html>

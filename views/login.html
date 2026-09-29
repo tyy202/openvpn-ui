@@ -16,23 +16,27 @@
   <link rel="stylesheet" href="/static/css/AdminLTE.min.3.2.0.css">
   <!-- iCheck 1.0.2 -->
   <link rel="stylesheet" href="/static/css/iCheck.1.0.2.css">
+  <link rel="stylesheet" href="/static/css/modern-admin.css">
 
   <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="96x96" href="/static/img/favicon/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/img/favicon/favicon-192x192.png">
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
+<body class="hold-transition login-page modern-login">
+<div class="login-atmosphere login-atmosphere-one"></div>
+<div class="login-atmosphere login-atmosphere-two"></div>
+<div class="login-box modern-login-box">
   <div class="login-logo">
-    <a href="#"><b>OpenVPN</b> UI</a>
+    <a href="#"><span class="login-brand-mark"><img src="/static/img/openvpn-win.svg" alt=""></span><span><b>OpenVPN</b> UI<small data-i18n="Management console">Management console</small></span></a>
   </div>
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <div class="text-right mb-3">{{template "common/language.html" .}}</div>
+      <div class="login-toolbar">{{template "common/language.html" .}}</div>
       {{template "common/alert.html" .}}
-      <p class="login-box-msg"><small><span data-i18n="Sign in to start your session">Sign in to start your session</span></small></p>
+      <h1 data-i18n="Welcome back">Welcome back</h1>
+      <p class="login-box-msg"><span data-i18n="Sign in to start your session">Sign in to start your session</span></p>
 
       {{if .error}}
         <div class="alert alert-danger" role="alert">

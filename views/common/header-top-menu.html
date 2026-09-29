@@ -1,50 +1,44 @@
-<ul class="navbar-nav">
+<nav class="admin-nav" aria-label="Main navigation">
+  <a href="{{urlfor "MainController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/"}}active{{end}}">
+    <i class="fa fa-dashboard"></i><span data-i18n="Home">Home</span>
+  </a>
 
-  <li {{if compare .RouterPattern "/"}}class="nav-item"{{end}}>
-    <a href="{{urlfor "MainController.Get"}}" class="nav-link"><span data-i18n="Home">Home</span> <span class="sr-only"><span data-i18n="(current)">(current)</span></span></a>
-  </li>
+  {{if .Userinfo.IsAdmin}}
+  <a href="/app" class="admin-nav-item {{if compare .RouterPattern "/access"}}active{{end}}">
+    <i class="fa fa-sitemap"></i><span data-i18n="VPN Access Control">VPN Access Control</span><span class="admin-nav-badge">NEW</span>
+  </a>
+  {{end}}
 
+  <a href="{{urlfor "CertificatesController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/certificates"}}active{{end}}">
+    <i class="fa fa-certificate"></i><span data-i18n="Certificates">Certificates</span>
+  </a>
 
-{{ if .Userinfo.IsAdmin }}
-  <li class="dropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-      <span data-i18n="Configuration">Configuration</span> </a>
+  {{if .Userinfo.IsAdmin}}
+  <div class="admin-nav-section" data-i18n="Configuration">Configuration</div>
+  <a href="{{urlfor "OVConfigController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/ov/config"}}active{{end}}">
+    <i class="fa fa-server"></i><span data-i18n="OpenVPN Server">OpenVPN Server</span>
+  </a>
+  <a href="{{urlfor "OVClientConfigController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/ov/clientconfig"}}active{{end}}">
+    <i class="fa fa-laptop"></i><span data-i18n="OpenVPN Client">OpenVPN Client</span>
+  </a>
+  <a href="{{urlfor "EasyRSAConfigController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/easyrsa/config"}}active{{end}}">
+    <i class="fa fa-key"></i><span data-i18n="EasyRSA vars">EasyRSA vars</span>
+  </a>
+  <a href="{{urlfor "SettingsController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/settings"}}active{{end}}">
+    <i class="fa fa-sliders"></i><span data-i18n="OpenVPN UI">OpenVPN UI</span>
+  </a>
+  {{end}}
 
-    <ul class="dropdown-menu" role="menu">
-      <li {{if compare .RouterPattern "/settings"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "SettingsController.Get"}}" class="dropdown-item"><span data-i18n="OpenVPN UI">OpenVPN UI</span></a>
-      </li>
-
-      <li {{if compare .RouterPattern "/ov/config"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "OVConfigController.Get"}}" class="dropdown-item"><span data-i18n="OpenVPN Server">OpenVPN Server</span></a>
-      </li>
-
-      <li {{if compare .RouterPattern "/ov/clientconfig"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "OVClientConfigController.Get"}}" class="dropdown-item"><span data-i18n="OpenVPN Client">OpenVPN Client</span></a>
-      </li>
-
-      <li {{if compare .RouterPattern "/easyrsa/config"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "EasyRSAConfigController.Get"}}" class="dropdown-item"><span data-i18n="EasyRSA vars">EasyRSA vars</span></a>
-      </li>
-
-      <li {{if compare .RouterPattern "/access"}}class="dropdown-item"{{end}}>
-        <a href="/app" class="dropdown-item"><span data-i18n="VPN Access Control">VPN Access Control</span></a>
-      </li>
-
-      <li {{if compare .RouterPattern "/dangerzone"}}class="dropdown-item"{{end}}>
-        <a href="{{urlfor "DangerController.Get"}}" class="dropdown-item"><span data-i18n="Maintenance">Maintenance</span></a>
-      </li>
-    </ul>
-  </li>
-  {{ else }}
-  {{ end }}
-
-
-  <li {{if compare .RouterPattern "/certificates"}}class="nav-item"{{end}}>
-    <a href="{{urlfor "CertificatesController.Get"}}" class="nav-link"><span data-i18n="Certificates">Certificates</span></a>
-  </li>
-
-  <li {{if compare .RouterPattern "/logs"}}class="nav-item"{{end}}>
-    <a href="{{urlfor "LogsController.Get"}}" class="nav-link"><span data-i18n="Logs">Logs</span></a>
-  </li>
-</ul>
+  <div class="admin-nav-section" data-i18n="System">System</div>
+  <a href="{{urlfor "LogsController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/logs"}}active{{end}}">
+    <i class="fa fa-file-text-o"></i><span data-i18n="Logs">Logs</span>
+  </a>
+  <a href="{{urlfor "ProfileController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/profile"}}active{{end}}">
+    <i class="fa fa-user-circle-o"></i><span data-i18n="Profile Configuration">Profile Configuration</span>
+  </a>
+  {{if .Userinfo.IsAdmin}}
+  <a href="{{urlfor "DangerController.Get"}}" class="admin-nav-item admin-nav-danger {{if compare .RouterPattern "/dangerzone"}}active{{end}}">
+    <i class="fa fa-wrench"></i><span data-i18n="Maintenance">Maintenance</span>
+  </a>
+  {{end}}
+</nav>
