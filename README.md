@@ -147,6 +147,7 @@ OPENVPN_UI_NETWORK_SCOPES=
 | `UI_BIND_IP` | 管理后台监听地址；`0.0.0.0` 表示允许通过主机网络访问 |
 | `UI_PORT` | 管理后台端口，默认 `8080` |
 | `OPENVPN_UI_NETWORK_SCOPES` | 可选的后台账号网段作用域；留空保持原管理员全权限行为 |
+| `ALLOW_USER_MANAGEMENT` | 是否允许管理员创建和管理其他后台账号，默认 `false` |
 
 VPN 地址池不能与目标内网、Docker 网络或客户端所在地网络重叠。含 `$`、`#` 等字符的密码建议使用单引号包裹：
 
@@ -178,6 +179,16 @@ OPENVPN_UI_NETWORK_SCOPES=admin=*;office-admin=192.168.18.0/24,10.32.22.0/24;bra
 ```bash
 docker compose up -d --force-recreate openvpn-ui
 ```
+
+### 后台账号管理
+
+默认情况下，所有后台账号在“用户资料配置”中都只能编辑自己的姓名、邮箱和密码。需要由管理员创建、查看、编辑或删除其他后台账号时，在 `.env` 中显式启用：
+
+```dotenv
+ALLOW_USER_MANAGEMENT=true
+```
+
+该开关只向管理员开放用户管理功能，普通账号即使启用开关也仍然只能编辑个人资料。修改后执行 `docker compose up -d --force-recreate openvpn-ui` 使配置生效。
 
 ## 使用流程
 

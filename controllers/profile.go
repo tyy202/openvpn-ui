@@ -41,8 +41,8 @@ func (c *ProfileController) Get() {
 	c.Data["profile"] = c.Userinfo
 	c.TplName = "profile.html"
 
-	// Get all users if user has admin flag - show all users
-	if c.Userinfo.IsAdmin {
+	// User management is opt-in and remains restricted to administrators.
+	if canManageUsers(c.Userinfo) {
 		o := orm.NewOrm()
 		var users []*models.User
 		if _, err := o.QueryTable("user").All(&users); err != nil {
@@ -123,6 +123,9 @@ func validateNewUser(nuser NewUser) map[string]map[string]string {
 
 // @router /profile/create [Create]
 func (c *ProfileController) Create() {
+	if !c.requireUserManagement() {
+		return
+	}
 	c.TplName = "profile.html"
 	c.Data["profile"] = c.Userinfo
 	flash := web.NewFlash()
@@ -209,19 +212,23 @@ func (c *ProfileController) Create() {
 
 // @router /profile [post]
 func (c *ProfileController) List() {
-	o := orm.NewOrm()
-	var users []*models.User
-	if _, err := o.QueryTable("user").All(&users); err != nil {
-		logs.Error("Failed to retrieve user profiles:", err)
-		return
+	if canManageUsers(c.Userinfo) {
+		o := orm.NewOrm()
+		var users []*models.User
+		if _, err := o.QueryTable("user").All(&users); err != nil {
+			logs.Error("Failed to retrieve user profiles:", err)
+			return
+		}
+		c.Data["users"] = users
 	}
-	//logs.Info("Retrieved", len(users), "user profiles")
-	c.Data["users"] = users
 	c.TplName = "profile.html"
 }
 
 // @router /profile/delete/:key [get]
 func (c *ProfileController) DeleteUser() {
+	if !c.requireUserManagement() {
+		return
+	}
 	c.TplName = "profile.html"
 	flash := web.NewFlash()
 	id, err := c.GetInt(":key")
@@ -254,6 +261,9 @@ func (c *ProfileController) DeleteUser() {
 
 // @router /profile/edit/:key [post]
 func (c *ProfileController) EditUser() {
+	if !c.requireUserManagement() {
+		return
+	}
 	c.TplName = "profile.html"
 	flash := web.NewFlash()
 	id, err := c.GetInt(":key")
@@ -294,4 +304,12 @@ func (c *ProfileController) EditUser() {
 	flash.Success("User \"" + user.Name + "\" updated successfully")
 	flash.Store(&c.Controller)
 	c.List()
+}
+
+func (c *ProfileController) requireUserManagement() bool {
+	if canManageUsers(c.Userinfo) {
+		return true
+	}
+	c.Abort("403")
+	return false
 }

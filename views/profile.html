@@ -11,8 +11,8 @@
   <div class="card-header d-flex p-0">
     <ul class="nav nav-pills ml-left p-2">
       <li class="nav-item"><a class="nav-link active" href="#tab_1" data-toggle="tab"><span data-i18n="Edit own Profile">Edit own Profile</span></a></li>
-      {{ if .Userinfo.IsAdmin }} <li class="nav-item"><a class="nav-link" href="#tab_2" data-toggle="tab"><span data-i18n="Creating new Profiles">Creating new Profiles</span></a></li> {{ else }}{{ end }}
-      {{ if .Userinfo.IsAdmin }} <li class="nav-item"><a class="nav-link" href="#tab_3" data-toggle="tab"><span data-i18n="Managing Profiles">Managing Profiles</span></a></li> {{ else }}{{ end }}
+      {{ if .CanManageUsers }} <li class="nav-item"><a class="nav-link" href="#tab_2" data-toggle="tab"><span data-i18n="Creating new Profiles">Creating new Profiles</span></a></li> {{ else }}{{ end }}
+      {{ if .CanManageUsers }} <li class="nav-item"><a class="nav-link" href="#tab_3" data-toggle="tab"><span data-i18n="Managing Profiles">Managing Profiles</span></a></li> {{ else }}{{ end }}
     </ul>
   </div>
   <div class="card-body">
@@ -89,6 +89,7 @@
       </div>
       
 
+      {{if .CanManageUsers}}
       <!--TAB2-->
       <div class="tab-pane" id="tab_2">
         <h3><span data-i18n="Create new profile">Create new profile</span></h3>
@@ -254,6 +255,8 @@
           
         </div>
       </div>
+
+      {{end}}
 
     </div>
   </div>

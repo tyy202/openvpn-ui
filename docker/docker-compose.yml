@@ -58,6 +58,7 @@ services:
       UI_BIND_IP: ${UI_BIND_IP:-0.0.0.0}
       UI_PORT: ${UI_PORT:-8080}
       OPENVPN_UI_NETWORK_SCOPES: ${OPENVPN_UI_NETWORK_SCOPES:-}
+      ALLOW_USER_MANAGEMENT: ${ALLOW_USER_MANAGEMENT:-false}
     cap_add:
       - NET_ADMIN
     volumes:

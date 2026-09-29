@@ -41,6 +41,7 @@ func (c *BaseController) Prepare() {
 
 	c.Data["IsLogin"] = c.IsLogin
 	c.Data["Userinfo"] = c.Userinfo
+	c.Data["CanManageUsers"] = canManageUsers(c.Userinfo)
 	c.Data["CanManageAccess"] = false
 	if c.Userinfo != nil {
 		_, allowed, err := resolveAccessScope(c.Userinfo)

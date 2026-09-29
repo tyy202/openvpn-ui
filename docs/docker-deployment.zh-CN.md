@@ -25,6 +25,7 @@ nano .env
 | `UI_BIND_IP` | 默认 `127.0.0.1`；要从内网直接打开网页，改为 Linux 的内网 IP |
 | `UI_PORT` | 管理网页端口，默认 `8080` |
 | `OPENVPN_UI_NETWORK_SCOPES` | 可选；按后台登录名限制可见和可管理的网段，格式见下文 |
+| `ALLOW_USER_MANAGEMENT` | 是否允许管理员创建和管理其他后台账号，默认 `false` |
 
 VPN 地址池不能与目标内网、客户端所在地网络或 Docker 网络重叠。`.env` 密码若含 `$` 或 `#` 等字符，请使用单引号包住整个值，例如 `OPENVPN_ADMIN_PASSWORD='your-long-random-password'`。
 
@@ -35,6 +36,8 @@ OPENVPN_UI_NETWORK_SCOPES=admin=*;office-admin=192.168.18.0/24,10.32.22.0/24;bra
 ```
 
 `*` 表示全部网段，多个 CIDR 使用逗号分隔，多个账号使用分号分隔，登录名不区分大小写。配置非空后，未列出的账号不能进入“VPN 访问控制”。窄权限账号只会看到权限完全落在其作用域内的用户组和 VPN 用户，也不能执行主机网络自动发现。修改后运行 `docker compose up -d --force-recreate openvpn-ui` 使环境变量生效。
+
+用户资料页面默认只允许每个账号编辑自己的资料。若要让管理员创建、查看、编辑和删除其他后台账号，请设置 `ALLOW_USER_MANAGEMENT=true`；普通账号不会因此获得用户管理权限。
 
 ## 2. 启动
 
