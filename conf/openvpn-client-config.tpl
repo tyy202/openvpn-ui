@@ -3,8 +3,6 @@ dev {{ .Device }}
 proto {{ .Proto }}
 remote {{ .ServerAddress }} {{ .OpenVpnServerPort }} {{ .Proto }}
 {{ .ResolveRetry }}
-user {{ .OVClientUser }}
-group {{ .OVClientGroup }}
 {{ .PersistTun }}
 {{ .PersistKey }}
 {{ .RemoteCertTLS }}

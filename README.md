@@ -27,6 +27,7 @@ OpenVPN UI 是一个面向小型 OpenVPN 环境的 Web 管理界面。它可以�
 - 管理 OpenVPN UI 用户及管理员权限。
 - 支持英文和简体中文界面，切换语言不会刷新页面或清空未保存的表单。
 - 提供基于 React、TypeScript 和 Ant Design 的现代管理界面；用户列表直接展示所属组和继承网段，用户组卡片展示成员与权限，并提供“用户组 × 网络”权限矩阵。
+- 生成的客户端配置不包含依赖特定 Linux 发行版的 `user` / `group` 降权指令，可导入 OpenVPN Connect 和群晖 DSM 内置 VPN 客户端。
 - 支持 AMD64、ARM64 等 Docker 可用架构，由目标机器在本地构建镜像。
 
 ## 推荐部署方式
