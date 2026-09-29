@@ -446,6 +446,8 @@ window.OpenVPNUIZh = {
   "Comment out this line if you don't need it: \"#resolv-retry infinite\"": "如不需要此选项，请用 # 注释：\"#resolv-retry infinite\"",
   "Comment out this line if you don't need it: \"#tls-client\"": "如不需要此选项，请用 # 注释：\"#tls-client\"",
   "VPN Access Control": "VPN 访问控制",
+  "Access overview": "权限总览",
+  "Permission matrix": "权限矩阵",
   "VPN pool": "VPN 地址池",
   "Access is denied unless an enabled group explicitly allows an enabled network.": "默认拒绝访问；只有启用的用户组明确关联已启用网段后才会放行。",
   "VPN Users": "VPN 用户",

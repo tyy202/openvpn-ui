@@ -4,9 +4,18 @@
   </a>
 
   {{if .Userinfo.IsAdmin}}
-  <a href="/app" class="admin-nav-item {{if compare .RouterPattern "/access"}}active{{end}}">
-    <i class="fa fa-sitemap"></i><span data-i18n="VPN Access Control">VPN Access Control</span><span class="admin-nav-badge">NEW</span>
-  </a>
+  <div class="admin-nav-group {{if compare .RouterPattern "/access"}}open active{{end}}">
+    <button type="button" class="admin-nav-item admin-nav-parent" data-submenu-toggle aria-expanded="{{if compare .RouterPattern "/access"}}true{{else}}false{{end}}">
+      <i class="fa fa-sitemap"></i><span data-i18n="VPN Access Control">VPN Access Control</span><i class="fa fa-angle-down admin-nav-chevron"></i>
+    </button>
+    <div class="admin-subnav">
+      <a href="/access#overview" data-access-section="overview"><i class="fa fa-line-chart"></i><span data-i18n="Access overview">Access overview</span></a>
+      <a href="/access#users" data-access-section="users"><i class="fa fa-user-o"></i><span data-i18n="VPN Users">VPN Users</span></a>
+      <a href="/access#groups" data-access-section="groups"><i class="fa fa-users"></i><span data-i18n="VPN Groups">VPN Groups</span></a>
+      <a href="/access#matrix" data-access-section="matrix"><i class="fa fa-th"></i><span data-i18n="Permission matrix">Permission matrix</span></a>
+      <a href="/access#networks" data-access-section="networks"><i class="fa fa-sitemap"></i><span data-i18n="Network Resources">Network Resources</span></a>
+    </div>
+  </div>
   {{end}}
 
   <a href="{{urlfor "CertificatesController.Get"}}" class="admin-nav-item {{if compare .RouterPattern "/certificates"}}active{{end}}">

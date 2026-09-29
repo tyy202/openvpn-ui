@@ -129,7 +129,7 @@ OPENVPN_ADMIN_PASSWORD='your-long-random-password'
 ssh -L 8080:127.0.0.1:8080 your-user@your-linux-host
 ```
 
-保持 SSH 连接，然后在本地打开 `http://127.0.0.1:8080/app`。登录后，旧版页面顶部的“VPN 访问控制”入口也会进入新界面。
+保持 SSH 连接，然后在本地打开 `http://127.0.0.1:8080/access`。登录后，可在左侧展开“VPN 访问控制”，直接切换权限总览、VPN 用户、用户组、权限矩阵和网络资源，所有功能都位于统一的管理后台中。旧地址 `/app` 会自动跳转到该页面。
 
 如果将 `UI_BIND_IP` 设置为 Linux 的内网 IP，也可以直接访问：
 

@@ -84,6 +84,22 @@
   if (sidebar) sidebar.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () { document.body.classList.remove('sidebar-open'); });
   });
+
+  document.querySelectorAll('[data-submenu-toggle]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const group = button.closest('.admin-nav-group');
+      const isOpen = group.classList.toggle('open');
+      button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+  function syncAccessNavigation() {
+    const section = (location.hash || '#overview').slice(1);
+    document.querySelectorAll('[data-access-section]').forEach(function (link) {
+      link.classList.toggle('active', link.getAttribute('data-access-section') === section);
+    });
+  }
+  window.addEventListener('hashchange', syncAccessNavigation);
+  syncAccessNavigation();
 </script>
 	</body>
 </html>

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"html/template"
 	"net"
 	"net/http"
 	"os"
@@ -31,36 +30,8 @@ func (c *AccessController) NestPrepare() {
 	c.Data["breadcrumbs"] = &BreadCrumbs{Title: "VPN Access Control"}
 }
 
-func (c *AccessController) load() {
-	o := orm.NewOrm()
-	var groups []*models.VPNGroup
-	var networks []*models.NetworkResource
-	var users []*models.VPNUser
-	_, _ = o.QueryTable(new(models.VPNGroup)).OrderBy("Name").All(&groups)
-	_, _ = o.QueryTable(new(models.NetworkResource)).OrderBy("CIDR").All(&networks)
-	_, _ = o.QueryTable(new(models.VPNUser)).RelatedSel("Group").OrderBy("Name").All(&users)
-	assignments := map[int64]map[int64]bool{}
-	var links []*models.GroupNetwork
-	_, _ = o.QueryTable(new(models.GroupNetwork)).RelatedSel("Group", "Network").All(&links)
-	for _, link := range links {
-		if assignments[link.Group.Id] == nil {
-			assignments[link.Group.Id] = map[int64]bool{}
-		}
-		assignments[link.Group.Id][link.Network.Id] = true
-	}
-	c.Data["Groups"] = groups
-	c.Data["Networks"] = networks
-	c.Data["VPNUsers"] = users
-	c.Data["Assignments"] = assignments
-	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
-	if cidr, err := lib.VPNPoolCIDR(); err == nil {
-		c.Data["VPNPool"] = cidr
-	}
-}
-
 func (c *AccessController) Get() {
 	c.TplName = "access.html"
-	c.load()
 }
 
 func (c *AccessController) Post() {

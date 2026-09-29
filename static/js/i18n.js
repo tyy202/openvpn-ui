@@ -77,6 +77,7 @@
     language = value;
     try { window.localStorage.setItem(storageKey, language); } catch (_) { /* Still switch in memory. */ }
     apply();
+    document.dispatchEvent(new CustomEvent('openvpn-ui:language-change', { detail: { language: language } }));
   }
 
   window.OpenVPNUILanguage = {

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/d3vilh/openvpn-ui/lib"
@@ -159,11 +158,5 @@ func (c *ModernAppController) Get() {
 	if !c.IsLogin || c.Userinfo == nil || !c.Userinfo.IsAdmin {
 		return
 	}
-	content, err := os.ReadFile("static/modern/index.html")
-	if err != nil {
-		c.CustomAbort(http.StatusServiceUnavailable, "modern UI has not been built")
-		return
-	}
-	c.Ctx.Output.Header("Content-Type", "text/html; charset=utf-8")
-	c.Ctx.Output.Body(content)
+	c.Ctx.Redirect(http.StatusMovedPermanently, "/access")
 }
