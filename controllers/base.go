@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/beego/beego/v2/server/web"
+	"github.com/d3vilh/openvpn-ui/internal/appversion"
 	"github.com/d3vilh/openvpn-ui/models"
 )
 
@@ -41,6 +42,7 @@ func (c *BaseController) Prepare() {
 
 	c.Data["IsLogin"] = c.IsLogin
 	c.Data["Userinfo"] = c.Userinfo
+	c.Data["AppVersion"] = appversion.Current()
 	c.Data["CanManageUsers"] = canManageUsers(c.Userinfo)
 	c.Data["CanManageAccess"] = false
 	if c.Userinfo != nil {

@@ -1,7 +1,7 @@
 {{ template "layout/base.html" . }}
 {{define "head"}}
 <title data-i18n="VPN Access Control">VPN Access Control</title>
-<link rel="stylesheet" href="/static/modern/assets/access-console.css">
+<link rel="stylesheet" href="/static/modern/assets/access-console.css?v={{.AppVersion}}">
 {{end}}
 {{define "body"}}
 <div id="root" class="access-console-root">
@@ -10,5 +10,5 @@
     <span data-i18n="Loading access relationships…">Loading access relationships…</span>
   </div>
 </div>
-<script type="module" src="/static/modern/assets/access-console.js"></script>
+<script type="module" src="/static/modern/assets/access-console.js?v={{.AppVersion}}"></script>
 {{end}}

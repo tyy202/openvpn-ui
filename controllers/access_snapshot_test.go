@@ -3,6 +3,7 @@ package controllers
 import (
 	"testing"
 
+	"github.com/d3vilh/openvpn-ui/internal/appversion"
 	"github.com/d3vilh/openvpn-ui/models"
 )
 
@@ -21,6 +22,9 @@ func TestBuildAccessSnapshotExposesUserGroupAndInheritedNetworks(t *testing.T) {
 		"csrf-token",
 	)
 
+	if snapshot.AppVersion != appversion.Current() {
+		t.Fatalf("AppVersion = %q, want %q", snapshot.AppVersion, appversion.Current())
+	}
 	if snapshot.PolicyMode != "default-deny" {
 		t.Fatalf("PolicyMode = %q, want default-deny", snapshot.PolicyMode)
 	}

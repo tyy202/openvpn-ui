@@ -13,8 +13,11 @@ WORKDIR /src
 COPY go.mod go.sum ./
 COPY vendor ./vendor
 COPY . .
-RUN go test -mod=vendor ./internal/deployconfig ./internal/accesspolicy \
- && CGO_ENABLED=1 go build -mod=vendor -trimpath -o /out/openvpn-ui .
+RUN APP_VERSION="$(cat VERSION)" \
+ && go test -mod=vendor ./internal/deployconfig ./internal/accesspolicy \
+ && CGO_ENABLED=1 go build -mod=vendor -trimpath \
+      -ldflags "-X github.com/d3vilh/openvpn-ui/internal/appversion.Version=${APP_VERSION}" \
+      -o /out/openvpn-ui .
 
 FROM alpine:3.23
 RUN apk add --no-cache bash ca-certificates curl jq easy-rsa openvpn openssl \

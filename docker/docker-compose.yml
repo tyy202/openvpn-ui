@@ -1,7 +1,7 @@
 name: openvpn
 
 x-openvpn-image: &openvpn-image
-  image: ${OPENVPN_IMAGE:-www.durian.fun:32433/openvpn-ui:v0.4}
+  image: ${OPENVPN_IMAGE:-www.durian.fun:32433/openvpn-ui:v0.5.0}
   pull_policy: always
 
 x-openvpn-volumes: &openvpn-volumes

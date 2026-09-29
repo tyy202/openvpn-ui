@@ -70,7 +70,7 @@ flowchart LR
 仓库的 `docker/` 目录包含可以直接使用的 Compose 配置，默认拉取：
 
 ```text
-www.durian.fun:32433/openvpn-ui:v0.4
+www.durian.fun:32433/openvpn-ui:v0.5.0
 ```
 
 部署步骤：
@@ -114,7 +114,7 @@ docker compose logs --tail=100 openvpn openvpn-ui
 编辑 `docker/.env`：
 
 ```dotenv
-OPENVPN_IMAGE=www.durian.fun:32433/openvpn-ui:v0.4
+OPENVPN_IMAGE=www.durian.fun:32433/openvpn-ui:v0.5.0
 
 OPENVPN_PUBLIC_HOST=vpn.example.com
 OPENVPN_PUBLIC_PORT=1194
@@ -211,12 +211,23 @@ ALLOW_USER_MANAGEMENT=true
 
 ## 从源码构建镜像
 
-镜像构建上下文必须使用仓库根目录，因为构建过程会同时编译 Go 后端和 `web/` 中的 React 前端：
+项目版本只在根目录的 `VERSION` 文件中维护。当前版本会写入 Docker 镜像、管理页面和访问控制 API。镜像构建上下文必须使用仓库根目录，因为构建过程会同时编译 Go 后端和 `web/` 中的 React 前端。
+
+PowerShell 构建并推送与源码版本一致的镜像：
+
+```powershell
+$version = (Get-Content .\VERSION).Trim()
+docker build -t "www.durian.fun:32433/openvpn-ui:v$version" .
+docker push "www.durian.fun:32433/openvpn-ui:v$version"
+```
+
+Linux 使用 Buildx 构建并推送：
 
 ```bash
+VERSION="$(cat VERSION)"
 docker buildx build \
   --platform linux/amd64 \
-  -t your-registry.example.com/openvpn-ui:v1.0.0 \
+  -t "your-registry.example.com/openvpn-ui:v${VERSION}" \
   --push .
 ```
 
@@ -229,6 +240,14 @@ docker compose up -d --build
 ```
 
 根目录的 `compose.yaml` 会构建本地镜像；`docker/docker-compose.yml` 会拉取 `OPENVPN_IMAGE` 指定的在线镜像。
+
+部署后可以在左侧栏底部或页面页脚查看版本，也可以直接查询容器内二进制：
+
+```bash
+docker compose exec openvpn-ui /opt/openvpn-ui/openvpn-ui -version
+```
+
+升级时同时修改 `.env` 中的 `OPENVPN_IMAGE` 标签。访问控制页面引用的 JS/CSS 会自动附加版本号，升级镜像后不会继续命中上一版本的浏览器缓存。
 
 ## 更新
 

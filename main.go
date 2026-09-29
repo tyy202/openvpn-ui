@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/beego/beego/v2/server/web"
+	"github.com/d3vilh/openvpn-ui/internal/appversion"
 	"github.com/d3vilh/openvpn-ui/internal/deployconfig"
 	"github.com/d3vilh/openvpn-ui/lib"
 	"github.com/d3vilh/openvpn-ui/models"
@@ -17,7 +18,12 @@ import (
 func main() {
 	configDir := flag.String("config", "conf", "Path to config dir")
 	initOnly := flag.Bool("init-only", false, "Initialize database and configuration, then exit")
+	showVersion := flag.Bool("version", false, "Print the application version and exit")
 	flag.Parse()
+	if *showVersion {
+		fmt.Println(appversion.Current())
+		return
+	}
 	deployment, err := deployconfig.Read(os.Getenv)
 	if err != nil {
 		panic(err)

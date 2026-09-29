@@ -41,6 +41,8 @@ OPENVPN_UI_NETWORK_SCOPES=admin=*;office-admin=192.168.18.0/24,10.32.22.0/24;bra
 
 ## 2. 启动
 
+当前源码版本记录在根目录 `VERSION`。在线镜像部署时，请确认 `.env` 的 `OPENVPN_IMAGE` 使用相同版本标签；启动后可在左侧栏底部查看实际运行版本。
+
 ```bash
 test -c /dev/net/tun || sudo modprobe tun
 sudo sysctl -w net.ipv4.ip_forward=1
@@ -54,6 +56,7 @@ docker compose logs -f init
 ```bash
 docker compose ps -a
 docker compose logs --tail=100 openvpn openvpn-ui
+docker compose exec openvpn-ui /opt/openvpn-ui/openvpn-ui -version
 ```
 
 `init` 正常状态是 `Exited (0)`，其余两个服务应为 `Up` / `healthy`。主机需允许所选 OpenVPN 端口；路由器、内网穿透和云安全组必须使用与 `OPENVPN_PROTOCOL` 相同的协议。管理协议端口 `2080` 无需向公网开放。

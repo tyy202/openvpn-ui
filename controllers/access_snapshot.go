@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/d3vilh/openvpn-ui/internal/appversion"
 	"github.com/d3vilh/openvpn-ui/internal/networkscope"
 	"github.com/d3vilh/openvpn-ui/lib"
 	"github.com/d3vilh/openvpn-ui/models"
@@ -52,6 +53,7 @@ type userView struct {
 }
 
 type accessSnapshot struct {
+	AppVersion          string        `json:"version"`
 	PolicyMode          string        `json:"policyMode"`
 	VPNPool             string        `json:"vpnPool"`
 	XSRFToken           string        `json:"xsrfToken"`
@@ -70,7 +72,7 @@ func toNetworkView(network *models.NetworkResource) networkView {
 
 func buildAccessSnapshot(groups []*models.VPNGroup, networks []*models.NetworkResource, users []*models.VPNUser, links []*models.GroupNetwork, pool, token string) accessSnapshot {
 	result := accessSnapshot{
-		PolicyMode: "default-deny", VPNPool: pool, XSRFToken: token,
+		AppVersion: appversion.Current(), PolicyMode: "default-deny", VPNPool: pool, XSRFToken: token,
 		Groups: make([]groupView, 0, len(groups)), Networks: make([]networkView, 0, len(networks)), Users: make([]userView, 0, len(users)),
 	}
 	groupNetworks := make(map[int64][]networkView)

@@ -12,7 +12,7 @@ type Member = { id:number; name:string; enabled:boolean }
 type GroupRef = { id:number; name:string; enabled:boolean }
 type Group = { id:number; name:string; description:string; enabled:boolean; members:Member[]; allowedNetworks:Network[] }
 type VPNUser = { id:number; name:string; certificateCN:string; staticIP:string; enabled:boolean; group:GroupRef; allowedNetworks:Network[] }
-type Snapshot = { policyMode:string; vpnPool:string; xsrfToken:string; canDiscoverNetworks:boolean; groups:Group[]; networks:Network[]; users:VPNUser[] }
+type Snapshot = { version:string; policyMode:string; vpnPool:string; xsrfToken:string; canDiscoverNetworks:boolean; groups:Group[]; networks:Network[]; users:VPNUser[] }
 type Section = 'overview'|'users'|'groups'|'matrix'|'networks'
 type Editing = { kind:'user'; value:VPNUser|'new' }|{ kind:'group'; value:Group|'new' }|{ kind:'network'; value:Network|'new' }|null
 
@@ -57,7 +57,7 @@ function Console(){
   return <div className="access-console">
     <div className="access-hero">
       <div><span className="access-eyebrow">{lang==='zh'?'网络访问策略':'Network access policy'}</span><Typography.Title level={3}>{t.title}</Typography.Title><Typography.Text type="secondary">{t.sub}</Typography.Text></div>
-      <div className="access-hero-meta"><Tag className="deny" icon={<LockOutlined/>}>{t.deny}</Tag><span className="pool-label">{t.pool}<strong>{data.vpnPool||'—'}</strong></span></div>
+      <div className="access-hero-meta"><Tag>v{data.version}</Tag><Tag className="deny" icon={<LockOutlined/>}>{t.deny}</Tag><span className="pool-label">{t.pool}<strong>{data.vpnPool||'—'}</strong></span></div>
     </div>
     <Alert className="policy" type="success" showIcon message={t.denyText}/>
     <div className="access-view" data-section={section}>{content}</div>
