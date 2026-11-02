@@ -13,7 +13,8 @@ WORKDIR /src
 COPY go.mod go.sum ./
 COPY vendor ./vendor
 COPY . .
-RUN APP_VERSION="$(cat VERSION)" \
+ARG APP_VERSION
+RUN APP_VERSION="${APP_VERSION:-$(cat VERSION)}" \
  && go test -mod=vendor ./internal/deployconfig ./internal/accesspolicy \
  && CGO_ENABLED=1 go build -mod=vendor -trimpath \
       -ldflags "-X github.com/d3vilh/openvpn-ui/internal/appversion.Version=${APP_VERSION}" \

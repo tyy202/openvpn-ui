@@ -1,7 +1,7 @@
 name: openvpn
 
 x-openvpn-image: &openvpn-image
-  image: ${OPENVPN_IMAGE:-www.durian.fun:32433/openvpn-ui:v0.5.2}
+  image: ${PULL_REGISTRY:-192.168.18.100:5000}/openvpn-ui:${TAG:?请在 .env 中设置 TAG}
   pull_policy: always
 
 x-openvpn-volumes: &openvpn-volumes

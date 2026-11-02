@@ -1,10 +1,10 @@
 # Linux Docker 试用部署
 
-这份部署从**当前源码**构建，包含中英文切换和按用户组控制网段访问。需要一台能访问目标内网的 Linux 主机、Docker Engine 和 Docker Compose v2。`openvpn` 与 `openvpn-ui` 使用 `network_mode: host`，适用于 Linux 和基于 Linux 内核的 NAS。无需在宿主机安装 Go、OpenVPN 或数据库。
+这份部署使用已构建镜像，包含中英文切换和按用户组控制网段访问。需要一台能访问目标内网的 Linux 主机、Docker Engine 和 Docker Compose v2。`openvpn` 与 `openvpn-ui` 使用 `network_mode: host`，适用于 Linux 和基于 Linux 内核的 NAS。无需在宿主机安装 Go、OpenVPN 或数据库。
 
 ## 1. 上传和填写配置
 
-把整个当前项目目录（包括 `vendor`、`views`、`static` 和新部署文件）上传至 Linux，例如 `/opt/openvpn-ui`。只重新克隆上游仓库不会包含本地改动。
+将仓库根目录的 `docker-compose.yml` 和 `.env.example` 上传至 Linux，例如 `/opt/openvpn-ui`。开发机使用 `docker-compose.build.yml` 构建和推送，部署机不需要源码。
 
 ```bash
 cd /opt/openvpn-ui
@@ -41,13 +41,14 @@ OPENVPN_UI_NETWORK_SCOPES=admin=*;office-admin=192.168.18.0/24,10.32.22.0/24;bra
 
 ## 2. 启动
 
-当前源码版本记录在根目录 `VERSION`。在线镜像部署时，请确认 `.env` 的 `OPENVPN_IMAGE` 使用相同版本标签；启动后可在左侧栏底部查看实际运行版本。
+在 `.env` 设置 `PULL_REGISTRY` 和 `TAG`，对应开发机使用 `PUSH_REGISTRY` 推送的相同镜像名称及标签。`TAG` 也会写入运行版本；启动后可在左侧栏底部查看。
 
 ```bash
 test -c /dev/net/tun || sudo modprobe tun
 sudo sysctl -w net.ipv4.ip_forward=1
 docker compose config --quiet
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose logs -f init
 ```
 
@@ -99,8 +100,9 @@ CCD 只向客户端推送所属用户组获准的路由，宿主机防火墙还�
 ```bash
 docker compose down
 docker compose up -d
-# 更新源码（含中英文改动）后重新构建：
-docker compose up -d --build
+# 开发机推送新版本后，更新 .env 中的 TAG 再拉取：
+docker compose pull
+docker compose up -d
 ```
 
 备份时先停止服务，完整打包数据，随后启动：

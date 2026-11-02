@@ -1,0 +1,9 @@
+# 构建和推送专用，与 docker-compose.yml 独立使用。
+services:
+  openvpn-ui:
+    image: ${PUSH_REGISTRY:-192.168.18.100:5001}/openvpn-ui:${TAG:?请在 .env 中设置 TAG}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_VERSION: ${TAG:?请在 .env 中设置 TAG}

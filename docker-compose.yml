@@ -1,39 +1,43 @@
+# 部署专用：只拉取镜像，不编译源码。
 name: openvpn-trial
 
-x-app: &app
-  image: openvpn-ui-local:modern
-  build:
-    context: .
-  volumes:
-    - ./data/openvpn:/etc/openvpn
-    - ./data/db:/opt/openvpn-ui/db
-    - ./data/log:/var/log/openvpn
+x-openvpn-image: &openvpn-image
+  image: ${PULL_REGISTRY:-192.168.18.100:5000}/openvpn-ui:${TAG:?请在 .env 中设置 TAG}
+  pull_policy: always
+
+x-openvpn-volumes: &openvpn-volumes
+  - ./data/openvpn:/etc/openvpn
+  - ./data/db:/opt/openvpn-ui/db
+  - ./data/log:/var/log/openvpn
 
 services:
   init:
-    <<: *app
+    <<: *openvpn-image
     command: ["init"]
     environment:
-      OPENVPN_PUBLIC_HOST: ${OPENVPN_PUBLIC_HOST:?Set OPENVPN_PUBLIC_HOST in .env}
+      OPENVPN_PUBLIC_HOST: ${OPENVPN_PUBLIC_HOST:?请在 .env 中设置 OPENVPN_PUBLIC_HOST}
       OPENVPN_PUBLIC_PORT: ${OPENVPN_PUBLIC_PORT:-1194}
       OPENVPN_PROTOCOL: ${OPENVPN_PROTOCOL:-tcp}
       OPENVPN_VPN_CIDR: ${OPENVPN_VPN_CIDR:-10.8.0.0/24}
       OPENVPN_LAN_CIDR: ${OPENVPN_LAN_CIDR:-192.168.18.0/24}
       OPENVPN_ADMIN_USERNAME: ${OPENVPN_ADMIN_USERNAME:-admin}
-      OPENVPN_ADMIN_PASSWORD: ${OPENVPN_ADMIN_PASSWORD:?Set OPENVPN_ADMIN_PASSWORD in .env}
+      OPENVPN_ADMIN_PASSWORD: ${OPENVPN_ADMIN_PASSWORD:?请在 .env 中设置 OPENVPN_ADMIN_PASSWORD}
       OPENVPN_MANAGEMENT_ADDRESS: 127.0.0.1:2080
+    volumes: *openvpn-volumes
     restart: "no"
 
   openvpn:
-    <<: *app
+    <<: *openvpn-image
     container_name: openvpn
     command: ["server"]
     environment:
       OPENVPN_NAT_INTERFACE: ${OPENVPN_NAT_INTERFACE:-}
-    cap_add: [NET_ADMIN]
+    cap_add:
+      - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
     network_mode: host
+    volumes: *openvpn-volumes
     depends_on:
       init:
         condition: service_completed_successfully
@@ -45,24 +49,25 @@ services:
       retries: 5
 
   openvpn-ui:
-    <<: *app
+    <<: *openvpn-image
     container_name: openvpn-ui
     command: ["ui"]
     environment:
       OPENVPN_ADMIN_USERNAME: ${OPENVPN_ADMIN_USERNAME:-admin}
-      OPENVPN_ADMIN_PASSWORD: ${OPENVPN_ADMIN_PASSWORD:?Set OPENVPN_ADMIN_PASSWORD in .env}
+      OPENVPN_ADMIN_PASSWORD: ${OPENVPN_ADMIN_PASSWORD:?请在 .env 中设置 OPENVPN_ADMIN_PASSWORD}
       OPENVPN_MANAGEMENT_ADDRESS: 127.0.0.1:2080
-      UI_BIND_IP: ${UI_BIND_IP:-127.0.0.1}
+      UI_BIND_IP: ${UI_BIND_IP:-0.0.0.0}
       UI_PORT: ${UI_PORT:-8080}
       OPENVPN_UI_NETWORK_SCOPES: ${OPENVPN_UI_NETWORK_SCOPES:-}
       ALLOW_USER_MANAGEMENT: ${ALLOW_USER_MANAGEMENT:-false}
-    network_mode: host
-    cap_add: [NET_ADMIN]
+    cap_add:
+      - NET_ADMIN
     volumes:
       - ./data/openvpn:/etc/openvpn
       - ./data/db:/opt/openvpn-ui/db
       - ./data/log:/var/log/openvpn
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    network_mode: host
     depends_on:
       openvpn:
         condition: service_healthy

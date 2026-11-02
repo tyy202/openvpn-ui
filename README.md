@@ -70,7 +70,7 @@ flowchart LR
 仓库的 `docker/` 目录包含可以直接使用的 Compose 配置，默认拉取：
 
 ```text
-www.durian.fun:32433/openvpn-ui:v0.5.2
+192.168.18.100:5000/openvpn-ui:0.5.2
 ```
 
 部署步骤：
@@ -114,7 +114,9 @@ docker compose logs --tail=100 openvpn openvpn-ui
 编辑 `docker/.env`：
 
 ```dotenv
-OPENVPN_IMAGE=www.durian.fun:32433/openvpn-ui:v0.5.2
+PUSH_REGISTRY=192.168.18.100:5001
+PULL_REGISTRY=192.168.18.100:5000
+TAG=0.5.2
 
 OPENVPN_PUBLIC_HOST=vpn.example.com
 OPENVPN_PUBLIC_PORT=1194
@@ -135,7 +137,9 @@ OPENVPN_UI_NETWORK_SCOPES=
 
 | 配置项 | 说明 |
 | --- | --- |
-| `OPENVPN_IMAGE` | 要拉取的项目镜像和版本 |
+| `PUSH_REGISTRY` | 开发机推送仓库，默认 `192.168.18.100:5001` |
+| `PULL_REGISTRY` | 部署机拉取仓库，默认 `192.168.18.100:5000` |
+| `TAG` | 镜像标签和运行版本，必须显式填写，如 `0.5.2` |
 | `OPENVPN_PUBLIC_HOST` | 客户端实际连接的公网 IP 或域名，不要包含协议和端口 |
 | `OPENVPN_PUBLIC_PORT` | OpenVPN 对外端口；需要在防火墙、路由器或内网穿透中转发 |
 | `OPENVPN_PROTOCOL` | `tcp` 或 `udp`，默认 `tcp` |
@@ -211,43 +215,35 @@ ALLOW_USER_MANAGEMENT=true
 
 ## 从源码构建镜像
 
-项目版本只在根目录的 `VERSION` 文件中维护。当前版本会写入 Docker 镜像、管理页面和访问控制 API。镜像构建上下文必须使用仓库根目录，因为构建过程会同时编译 Go 后端和 `web/` 中的 React 前端。
+构建与部署使用两份独立编排，与 HistoricalAtlasofChina 项目一致，不需要叠加 `-f` 参数。
 
-PowerShell 构建并推送与源码版本一致的镜像：
-
-```powershell
-$version = (Get-Content .\VERSION).Trim()
-docker build -t "www.durian.fun:32433/openvpn-ui:v$version" .
-docker push "www.durian.fun:32433/openvpn-ui:v$version"
-```
-
-Linux 使用 Buildx 构建并推送：
+在仓库根目录复制 `.env.example` 为 `.env`，设置 `PUSH_REGISTRY`、`PULL_REGISTRY` 和 `TAG`，然后构建、推送：
 
 ```bash
-VERSION="$(cat VERSION)"
-docker buildx build \
-  --platform linux/amd64 \
-  -t "your-registry.example.com/openvpn-ui:v${VERSION}" \
-  --push .
+docker compose -f docker-compose.build.yml build
+docker compose -f docker-compose.build.yml push
 ```
 
-需要在本机试运行时：
+构建入口只有一个镜像，包含 Go 后端、React 前端和 OpenVPN，部署时三个服务复用此镜像。`TAG` 同时注入二进制中的版本号。根目录 `VERSION` 仅供直接执行 `docker build` 且不传 `APP_VERSION` 时兜底使用；正式发布以 `.env` 中的 `TAG` 为准。
+
+部署机只需 `docker-compose.yml` 和配置好的 `.env`，不需要源码或编译环境：
 
 ```bash
-cp .env.example .env
-nano .env
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 ```
 
-根目录的 `compose.yaml` 会构建本地镜像；`docker/docker-compose.yml` 会拉取 `OPENVPN_IMAGE` 指定的在线镜像。
+根目录部署继续使用 `openvpn-trial` 项目名和根目录 `data/`；`docker/` 目录的部署入口继续使用 `openvpn` 项目名和该目录下的 `data/`。已有部署请在原目录更新配置，避免误用另一份数据。`deploy/` 中的 Shell 脚本是容器入口脚本，不是宿主机部署编排。
 
-部署后可以在左侧栏底部或页面页脚查看版本，也可以直接查询容器内二进制：
+升级旧配置时，将 `OPENVPN_IMAGE` 替换为 `PULL_REGISTRY` 和 `TAG`。例如原镜像 `www.durian.fun:32433/openvpn-ui:v1.0.5` 对应 `PULL_REGISTRY=www.durian.fun:32433`、`TAG=v1.0.5`；新构建推荐使用不带 `v` 的数字标签。请先成功推送新标签，再在部署机填写同一个 `TAG`。
+
+部署后可在左侧栏、页脚和访问控制页面查看版本，也可查询容器内二进制：
 
 ```bash
 docker compose exec openvpn-ui /opt/openvpn-ui/openvpn-ui -version
 ```
 
-升级时同时修改 `.env` 中的 `OPENVPN_IMAGE` 标签。访问控制页面引用的 JS/CSS 会自动附加版本号，升级镜像后不会继续命中上一版本的浏览器缓存。
+访问控制页面的 JS/CSS 地址附带版本号，每次发布应更新 `TAG`，以便刷新浏览器缓存。
 
 ## 更新
 
@@ -264,7 +260,10 @@ docker compose ps -a
 
 ```bash
 git pull
-docker compose up -d --build
+docker compose -f docker-compose.build.yml build
+docker compose -f docker-compose.build.yml push
+docker compose pull
+docker compose up -d
 docker compose ps -a
 ```
 
