@@ -113,7 +113,8 @@ func RenderCCD(address string, enabled bool, networks []string) (string, error) 
 		b.WriteString("disable\n")
 		return b.String(), nil
 	}
-	b.WriteString("push-remove \"route\"\n")
+	// Keep route-gateway: OpenVPN matches push-remove by prefix.
+	b.WriteString("push-remove \"route \"\n")
 	for _, cidr := range ordered {
 		_, n, _ := net.ParseCIDR(cidr)
 		b.WriteString(fmt.Sprintf("push \"route %s %s\"\n", n.IP.String(), net.IP(n.Mask).String()))

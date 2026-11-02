@@ -70,7 +70,7 @@ flowchart LR
 仓库的 `docker/` 目录包含可以直接使用的 Compose 配置，默认拉取：
 
 ```text
-www.durian.fun:32433/openvpn-ui:v0.5.1
+www.durian.fun:32433/openvpn-ui:v0.5.2
 ```
 
 部署步骤：
@@ -114,7 +114,7 @@ docker compose logs --tail=100 openvpn openvpn-ui
 编辑 `docker/.env`：
 
 ```dotenv
-OPENVPN_IMAGE=www.durian.fun:32433/openvpn-ui:v0.5.1
+OPENVPN_IMAGE=www.durian.fun:32433/openvpn-ui:v0.5.2
 
 OPENVPN_PUBLIC_HOST=vpn.example.com
 OPENVPN_PUBLIC_PORT=1194

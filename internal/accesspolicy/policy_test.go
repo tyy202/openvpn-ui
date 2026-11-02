@@ -31,7 +31,7 @@ func TestRenderCCD(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "ifconfig-push 10.8.22.8 255.255.255.0\npush-remove \"route\"\npush \"route 192.168.10.0 255.255.255.0\"\npush \"route 192.168.110.0 255.255.255.0\"\n"
+	want := "ifconfig-push 10.8.22.8 255.255.255.0\npush-remove \"route \"\npush \"route 192.168.10.0 255.255.255.0\"\npush \"route 192.168.110.0 255.255.255.0\"\n"
 	if got != want {
 		t.Fatalf("unexpected CCD:\n%s", got)
 	}
