@@ -149,7 +149,9 @@ func ReconcileAccessPolicy() error {
 		if err != nil {
 			return err
 		}
-		if err := atomicWrite(filepath.Join(ccdDir, user.CertificateCN), []byte(content), 0640); err != nil {
+		// OpenVPN drops to nobody before reading client-specific routes.
+		// CCD files contain addresses and routes, never private keys.
+		if err := atomicWrite(filepath.Join(ccdDir, user.CertificateCN), []byte(content), 0644); err != nil {
 			return err
 		}
 		policies = append(policies, accesspolicy.UserPolicy{IP: user.StaticIP, Enabled: enabled, Networks: networks})
